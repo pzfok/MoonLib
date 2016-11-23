@@ -65,7 +65,7 @@ namespace zookeeper
 enum GlobalWatcherType
 {
     WATCHER_GET = 1,
-    WATCHER_EXISTS = 3,
+    WATCHER_EXISTS = 3,         // 掩码包含GET
     WATCHER_GET_CHILDREN = 4
 };
 
@@ -76,7 +76,7 @@ public:
     {
         NOT_WATCHER,
         GLOBAL,
-        EXIST,
+        EXISTS,
         GET,
         GET_CHILDREN,
     };
@@ -304,7 +304,7 @@ int32_t ZookeeperManager::AExists(const string &path, shared_ptr<StatCompletionF
     ZookeeperCtx *p_zookeeper_context = new ZookeeperCtx(*this);
     p_zookeeper_context->m_stat_completion_fun = stat_completion_fun;
 
-    shared_ptr<ZookeeperCtx> p_zookeeper_watcher_context = make_shared<ZookeeperCtx>(*this, ZookeeperCtx::EXIST);
+    shared_ptr<ZookeeperCtx> p_zookeeper_watcher_context = make_shared<ZookeeperCtx>(*this, ZookeeperCtx::EXISTS);
     p_zookeeper_watcher_context->m_watcher_fun = watcher_fun;
 
     string abs_path = move(ChangeToAbsPath(path));
@@ -345,7 +345,7 @@ int32_t ZookeeperManager::Exists(const string &path, Stat *stat, int watch /*= 0
 int32_t ZookeeperManager::Exists(const string &path, Stat *stat, shared_ptr<WatcherFunType> watcher_fun)
 {
     int32_t ret = ZOK;
-    shared_ptr<ZookeeperCtx> p_zookeeper_watcher_context = make_shared<ZookeeperCtx>(*this, ZookeeperCtx::EXIST);
+    shared_ptr<ZookeeperCtx> p_zookeeper_watcher_context = make_shared<ZookeeperCtx>(*this, ZookeeperCtx::EXISTS);
     p_zookeeper_watcher_context->m_watcher_fun = watcher_fun;
 
     string abs_path = move(ChangeToAbsPath(path));
@@ -1388,7 +1388,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
     uint8_t stop_watcher_type_mask = 0;
 
     /* 自动注册Watcher，根据注册时调用的操作类型来 */
-    if (p_context->m_watcher_type == ZookeeperCtx::EXIST)
+    if (p_context->m_watcher_type == ZookeeperCtx::EXISTS)
     {
         ret = zoo_wexists(manager.GetHandler(), abs_path, &ZookeeperManager::InnerWatcher, p_context, NULL);
         if (ret != ZOK && ret != ZNONODE)
@@ -1674,7 +1674,7 @@ void ZookeeperManager::InnerStatCompletion(int rc, const Stat *stat, const void 
     if (rc == ZOK || (rc == ZNONODE
                       && (up_context->m_global_watcher_add_type == WATCHER_EXISTS
                           || (up_context->m_custom_watcher_context != NULL
-                              && up_context->m_custom_watcher_context->m_watcher_type == ZookeeperCtx::EXIST))))
+                              && up_context->m_custom_watcher_context->m_watcher_type == ZookeeperCtx::EXISTS))))
     {
         // 处理Watcher
         manager.ProcAsyncWatcher(*up_context);
@@ -1932,7 +1932,7 @@ void ZookeeperManager::ReconnectResumeEnv()
 
         INFO_LOG(0, 0, "Zookeeper:重新注册全局Watcher,路径[%s],类型[%u].",
                  it->first.c_str(), it->second->m_watcher_type);
-        if (it->second->m_watcher_type == ZookeeperCtx::EXIST)
+        if (it->second->m_watcher_type == ZookeeperCtx::EXISTS)
         {
             ret = zoo_wexists(m_zhandle, it->first.c_str(),
                               &ZookeeperManager::InnerWatcher, it->second.get(), NULL);
