@@ -1399,6 +1399,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
         {
             ERR_LOG(0, 0, "Zookeeper:发生错误,ret[%d],zerror[%s].", ret, zerror(ret));
             type = ZOO_NOTWATCHING_EVENT;
+            p_context->m_is_stop = true;
         }
     }
     else if (p_context->m_watcher_type == ZookeeperCtx::GET)
@@ -1423,6 +1424,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
             {
                 ERR_LOG(0, 0, "Zookeeper:发生错误,ret[%d],zerror[%s].", ret, zerror(ret));
                 type = ZOO_NOTWATCHING_EVENT;
+                p_context->m_is_stop = true;
             }
             else
             {
@@ -1441,7 +1443,8 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
         {
             // 重新注册，TODO(moontan)：看是否需要把children和stat传给watcher，避免watcher中调用，看使用量，这些参数可以统一封装在一个对象里
             ScopedStringVector children;
-            ret = zoo_wget_children(manager.GetHandler(), abs_path, &ZookeeperManager::InnerWatcher, p_context, &children);
+            ret = zoo_wget_children(manager.GetHandler(), abs_path, &ZookeeperManager::InnerWatcher,
+                                    p_context, &children);
 
             // 失败的话，发一个ZOO_NOTWATCHING_EVENT事件
             if (ret == ZNONODE)
@@ -1453,6 +1456,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
             else if (ret != ZOK)
             {
                 ERR_LOG(0, 0, "Zookeeper:发生错误,ret[%d],zerror[%s].", ret, zerror(ret));
+                p_context->m_is_stop = true;
                 type = ZOO_NOTWATCHING_EVENT;
             }
             else
@@ -1479,6 +1483,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
 
         if (type == ZOO_CHANGED_EVENT)
         {
+            // 如果是有Exists注册，优先使用Exists重注册
             if ((it->second & WATCHER_EXISTS) == WATCHER_EXISTS)
             {
                 ret = manager.Exists(abs_path, NULL, 1);
@@ -1508,6 +1513,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
         }
         else if (type == ZOO_DELETED_EVENT)
         {
+            // 如果是有Exists注册，使用Exists重注册
             if ((it->second & WATCHER_EXISTS) == WATCHER_EXISTS)
             {
                 // 删掉GetChildren事件
@@ -1519,15 +1525,14 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
                 {
                     ret = ZOK;
                 }
-
-                stop_watcher_type_mask = ~WATCHER_EXISTS;
             }
             else
             {
-                // 没有Exists事件，停止所有类型重注册
                 p_context->m_is_stop = true;
-                stop_watcher_type_mask = ~WATCHER_EXISTS & ~WATCHER_GET_CHILDREN;
             }
+
+            // 如果不重注册，则停止所有类型重注册，因为不管注册了几种Watcher，全局Watcher删除时只会触发一次
+            stop_watcher_type_mask = 0;
         }
         else if (type == ZOO_CREATED_EVENT)
         {
@@ -1584,6 +1589,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
         {
             ERR_LOG(0, 0, "Zookeeper:发生错误,ret[%d],zerror[%s].", ret, zerror(ret));
             type = ZOO_NOTWATCHING_EVENT;
+            p_context->m_is_stop = true;
         }
     }
 
@@ -1594,7 +1600,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
     {
         if (p_context->m_watcher_type == ZookeeperCtx::GLOBAL)
         {
-            // 删除指定节点的全局Watcher
+            // 删除指定节点的全局Watcher信息，下次仍然会触发，只是找不到了，就不调用用户的Watcher了而已
             unique_lock<recursive_mutex> lock(manager.m_global_watcher_path_type_lock);
             auto it = manager.m_global_watcher_path_type.find(abs_path);
             if (it != manager.m_global_watcher_path_type.end())
@@ -1612,6 +1618,8 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
             p_context->m_is_stop = true;
 
             manager.DelCustomWatcher(abs_path, p_context);
+
+            // 删除上面的流程重注册的信息
             destroy_watcher_object_list(collectWatchers(manager.m_zhandle, type, const_cast<char *>(abs_path)));
         }
     }

@@ -80,10 +80,10 @@ void EnableZkLink()
     (void)CppSystem::ExcuteCommand("iptables -I INPUT -i lo -p tcp --dport 2181 -j ACCEPT;iptables  -I OUTPUT -o lo -p tcp --sport 2181 -j ACCEPT");
 }
 
-#define ASYNC_BEGIN done = false
-#define NOTIFY_SYNC done = true;sync_cond.notify_all()
+#define ASYNC_BEGIN(count) done = count
+#define NOTIFY_SYNC --done;sync_cond.notify_all()
 #define WATI_SYNC sync_lock_u.lock();\
-    while (!done)\
+    while (done)\
     {\
         sync_cond.wait(sync_lock_u);\
     }\
@@ -154,6 +154,24 @@ TEST(ZooKeeper, DISABLED_ZookeeperApiTest)
 
     ScopedStringVector children;
     ret = zoo_wget_children(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher1, NULL, &children);    // 不触发
+    EXPECT_EQ(ZOK, ret);
+
+    INFOR_LOG("删除节点.");
+    ret = zoo_delete(pZk, TEST_NODE.c_str(), -1);
+    EXPECT_EQ(ZOK, ret);
+
+    INFOR_LOG("创建节点.");
+    ret = zoo_create(pZk, TEST_NODE.c_str(), "", 0, &ZOO_OPEN_ACL_UNSAFE, 0, NULL, 0);
+    EXPECT_EQ(ZOK, ret);
+
+    // 测试删除节点的触发情况，使用3种方式注册Watcher，在删除节点的时候，只会触发一次
+    ret = zoo_exists(pZk, TEST_NODE.c_str(), 1, NULL);
+    EXPECT_EQ(ZOK, ret);
+
+    ret = zoo_get(pZk, TEST_NODE.c_str(), 1, &data, &buflen, NULL);
+    EXPECT_EQ(ZOK, ret);
+
+    ret = zoo_get_children(pZk, TEST_NODE.c_str(), 1, &children);
     EXPECT_EQ(ZOK, ret);
 
     INFOR_LOG("删除节点.");
@@ -301,7 +319,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncTest)
 TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -324,7 +342,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string node_name = CppString::ToString(i);
-        ASYNC_BEGIN;
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.ACreate(node_name, node_name,
                                           make_shared<StringCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const char *value)
         {
@@ -340,7 +358,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
 
     string path_to_delete = CppString::ToString(COUNT - 2);
     INFOR_LOG("删除节点[%s].", path_to_delete.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.ADelete(path_to_delete, -1, make_shared<VoidCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc)
     {
         static_cast<void>(zookeeper_manager);
@@ -352,7 +370,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     WATI_SYNC;
 
     INFOR_LOG("节点[%s]不存在了.", path_to_delete.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AExists(path_to_delete, make_shared<StatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -362,15 +380,10 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
 
         NOTIFY_SYNC;
     })));
-    sync_lock_u.lock();
-    while (!done)
-    {
-        sync_cond.wait(sync_lock_u);
-    }
-    sync_lock_u.unlock();
+    WATI_SYNC;
 
     INFOR_LOG("获得根目录下所有节点，还有[%u]个.", COUNT - 1);
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGetChildren(TEST_ROOT_PATH, make_shared<StringsStatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const String_vector *children, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -384,7 +397,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     WATI_SYNC;
 
     INFOR_LOG("再调用一次，不能有内存泄露.");
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGetChildren(TEST_ROOT_PATH, make_shared<StringsStatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const String_vector *children, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -399,7 +412,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
 
     string path_to_op = CppString::ToString(COUNT - 1);
     INFOR_LOG("节点[%s]存在.", path_to_op.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AExists(path_to_op, make_shared<StatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -413,7 +426,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
 
     INFOR_LOG("获得节点[%s]数据.", path_to_op.c_str());
     int last_version;
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGet(path_to_op, make_shared<DataCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const char *value, int value_len, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -431,7 +444,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
 
     string new_data = "new_data";
     INFOR_LOG("设置节点[%s]数据为[%s].", path_to_op.c_str(), new_data.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.ASet(path_to_op, new_data.c_str(), last_version, make_shared<StatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -445,7 +458,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     WATI_SYNC;
 
     INFOR_LOG("再次获得节点[%s]数据.", path_to_op.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGet(path_to_op, make_shared<DataCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const char *value, int value_len, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -461,7 +474,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     WATI_SYNC;
 
     INFOR_LOG("设置回节点[%s]数据为[%s].", path_to_op.c_str(), path_to_op.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.ASet(path_to_op, path_to_op.c_str(), last_version, make_shared<StatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -476,7 +489,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
 
     INFOR_LOG("获得节点[%s]ACL数据.", path_to_op.c_str());
     int last_aversion;
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGetAcl(path_to_op, make_shared<AclCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, ACL_vector *acl, Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -494,7 +507,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     WATI_SYNC;
 
     INFOR_LOG("设置节点[%s]ACL数据.", path_to_op.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.ASetAcl(path_to_op, last_aversion, &ZOO_READ_ACL_UNSAFE, make_shared<VoidCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc)
     {
         static_cast<void>(zookeeper_manager);
@@ -506,7 +519,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     WATI_SYNC;
 
     INFOR_LOG("再次获得节点[%s]ACL数据.", path_to_op.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGetAcl(path_to_op, make_shared<AclCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, ACL_vector *acl, Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -532,7 +545,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
         multi_ops->AddCreateOp(node_name, node_data);
     }
 
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AMulti(multi_ops, make_shared<MultiCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, std::shared_ptr<MultiOps> &multi_ops, std::shared_ptr<std::vector<zoo_op_result_t>> &multi_results)
     {
         static_cast<void>(zookeeper_manager);
@@ -570,7 +583,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
 TEST(ZooKeeper, DISABLED_ZkManagerReconnectTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -585,7 +598,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerReconnectTest)
 
     INFOR_LOG("开始连接.");
     uint32_t expire_second = 5;
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Connect(make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
                                                                       int type, int state, const char *path) -> bool
     {
@@ -640,7 +653,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerReconnectTest)
 
     string new_data = "new_data";
     INFOR_LOG("修改[%s]数据为[%s]，触发全局Watcher.", GET_WATCHER_NODE.c_str(), new_data.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Set(GET_WATCHER_NODE, new_data, -1, NULL));
     WATI_SYNC;
 
@@ -661,13 +674,13 @@ TEST(ZooKeeper, DISABLED_ZkManagerReconnectTest)
     }
 
     INFOR_LOG("使用iptables重新连接.");
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     EnableZkLink();
     WATI_SYNC;
 
     new_data = "new_data2";
     INFOR_LOG("修改[%s]数据为[%s]，触发全局Watcher.", GET_WATCHER_NODE.c_str(), new_data.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Set(GET_WATCHER_NODE, new_data, -1, NULL));
     WATI_SYNC;
 }
@@ -676,7 +689,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerReconnectTest)
 TEST(ZooKeeper, DISABLED_ZkManagerSyncCustomWatcherTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -697,8 +710,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncCustomWatcherTest)
     static const string WATCHER_PATH = TEST_ROOT_PATH + "/watcher_test";
     INFOR_LOG("Exist注册一个节点不存在的Watcher,路径[%s],在节点创建后和删除后会调用.", WATCHER_PATH.c_str());
     ASSERT_EQ(ZNONODE, zk_manager.Exists(WATCHER_PATH, NULL,
-                                        make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
-                                                                        int type, int state, const char *path) -> bool
+                                         make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
+                                                                         int type, int state, const char *path) -> bool
     {
         static_cast<void>(zookeeper_manager);
         INFOR_LOG("触发Watcher,type[%s].", GetEventTypeStr(type).c_str());
@@ -728,12 +741,12 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncCustomWatcherTest)
     })));
 
     INFOR_LOG("创建节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Create(WATCHER_PATH, ""));
     WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 
@@ -773,13 +786,82 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncCustomWatcherTest)
         return false;
     })));
 
-    INFOR_LOG("修改节点[%s]数据,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    INFOR_LOG("Get注册第2个Watcher测试,注册到[%s].", WATCHER_PATH.c_str());
+    ASSERT_EQ(ZOK, zk_manager.Get(WATCHER_PATH, buf, &buflen, NULL, make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
+                                                                                                    int type, int state, const char *path) -> bool
+    {
+        static_cast<void>(zookeeper_manager);
+        INFOR_LOG("触发Watcher,type[%s].", GetEventTypeStr(type).c_str());
+
+        EXPECT_EQ(ZOO_CONNECTED_STATE, state);
+        EXPECT_EQ(0, strcmp(path, WATCHER_PATH.c_str()));
+        if (type == ZOO_CHANGED_EVENT)
+        {
+            // 继续Watcher
+            NOTIFY_SYNC;
+            return false;
+        }
+        else if (type == ZOO_DELETED_EVENT)
+        {
+            // 删除节点，停止Watcher
+            NOTIFY_SYNC;
+            return true;
+        }
+        else
+        {
+            EXPECT_TRUE(false);
+        }
+
+        NOTIFY_SYNC;
+
+        return false;
+    })));
+
+    INFOR_LOG("Exist注册第3个Watcher测试,注册到[%s].", WATCHER_PATH.c_str());
+    ASSERT_EQ(ZOK, zk_manager.Exists(WATCHER_PATH, NULL,
+                                     make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
+                                                                     int type, int state, const char *path) -> bool
+    {
+        static_cast<void>(zookeeper_manager);
+        INFOR_LOG("触发Watcher,type[%s].", GetEventTypeStr(type).c_str());
+
+        EXPECT_EQ(ZOO_CONNECTED_STATE, state);
+        EXPECT_EQ(0, strcmp(path, WATCHER_PATH.c_str()));
+        if (type == ZOO_CREATED_EVENT)
+        {
+            // 继续Watcher
+            NOTIFY_SYNC;
+            return false;
+        }
+        else if (type == ZOO_DELETED_EVENT)
+        {
+            // 停止Watcher
+            NOTIFY_SYNC;
+            return true;
+        }
+        if (type == ZOO_CHANGED_EVENT)
+        {
+            // 继续Watcher
+            NOTIFY_SYNC;
+            return false;
+        }
+        else
+        {
+            EXPECT_TRUE(false);
+        }
+
+        NOTIFY_SYNC;
+
+        return false;
+    })));
+
+    INFOR_LOG("修改节点[%s]数据,触发3次Watcher.", WATCHER_PATH.c_str());
+    ASYNC_BEGIN(3);
     ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH, "123", -1));
     WATI_SYNC;
 
-    INFOR_LOG("再次修改节点[%s]数据,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    INFOR_LOG("再次修改节点[%s]数据,触发3次Watcher.", WATCHER_PATH.c_str());
+    ASYNC_BEGIN(3);
     ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH, "1234", -1));
     WATI_SYNC;
 
@@ -801,26 +883,26 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncCustomWatcherTest)
 
     static const uint32_t COUNT = 10;
     INFOR_LOG("操作节点[%s]的子节点,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string child_path = WATCHER_PATH + "/" + CppString::ToString(i);
         INFOR_LOG("创建节点[%s],触发Watcher.", child_path.c_str());
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.Create(child_path, ""));
+        WATI_SYNC;
     }
-    WATI_SYNC;
 
-    ASYNC_BEGIN;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string child_path = WATCHER_PATH + "/" + CppString::ToString(i);
         INFOR_LOG("删除节点[%s],触发Watcher.", child_path.c_str());
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.Delete(child_path, -1));
+        WATI_SYNC;
     }
-    WATI_SYNC;
 
-    INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    INFOR_LOG("删除节点[%s],触发4次Watcher.", WATCHER_PATH.c_str());
+    ASYNC_BEGIN(4);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 }
@@ -829,7 +911,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncCustomWatcherTest)
 TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -849,7 +931,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
 
     static const string WATCHER_PATH = TEST_ROOT_PATH + "/watcher_test";
     INFOR_LOG("Exist注册一个节点不存在的Watcher,路径[%s],在节点创建后和删除后会调用.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AExists(WATCHER_PATH,
                                       make_shared<StatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const Stat *stat)
     {
@@ -892,12 +974,12 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
     WATI_SYNC;
 
     INFOR_LOG("创建节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Create(WATCHER_PATH, ""));
     WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 
@@ -905,7 +987,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
     ASSERT_EQ(ZOK, zk_manager.Create(WATCHER_PATH, ""));
 
     INFOR_LOG("Get注册Watcher测试,注册到[%s].", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGet(WATCHER_PATH, make_shared<DataCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const char *value, int value_len, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -949,18 +1031,18 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
     WATI_SYNC;
 
     INFOR_LOG("修改节点[%s]数据,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH, "123", -1));
     WATI_SYNC;
 
     INFOR_LOG("再次修改节点[%s]数据,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH, "1234", -1));
     WATI_SYNC;
 
     INFOR_LOG("注册子节点事件[%s].", WATCHER_PATH.c_str());
     ScopedStringVector children;
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGetChildren(WATCHER_PATH, make_shared<StringsStatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const String_vector *children, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -987,17 +1069,17 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
 
     static const uint32_t COUNT = 10;
     INFOR_LOG("操作节点[%s]的子节点,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string child_path = WATCHER_PATH + "/" + CppString::ToString(i);
         INFOR_LOG("创建节点[%s],触发Watcher.", child_path.c_str());
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.Create(child_path, ""));
+        WATI_SYNC;
     }
-    WATI_SYNC;
 
     INFOR_LOG("获得节点[%s]的子节点.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGetChildren(WATCHER_PATH, make_shared<StringsStatCompletionFunType>([&](ZookeeperManager &zookeeper_manager, int rc, const String_vector *children, const Stat *stat)
     {
         static_cast<void>(zookeeper_manager);
@@ -1011,17 +1093,17 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
     }), make_shared<WatcherFunType>(), true));
     WATI_SYNC;
 
-    ASYNC_BEGIN;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string child_path = WATCHER_PATH + "/" + CppString::ToString(i);
         INFOR_LOG("删除节点[%s],触发Watcher.", child_path.c_str());
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.Delete(child_path, -1));
+        WATI_SYNC;
     }
-    WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发2次Watcher，均为DELETE事件.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(2);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 }
@@ -1030,7 +1112,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
 TEST(ZooKeeper, DISABLED_ZkManagerExceptionTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -1056,7 +1138,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerExceptionTest)
 
         return false;
     }), expire_second * 1000, 3000));
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     EnableZkLink();
     WATI_SYNC;
 
@@ -1088,14 +1170,13 @@ TEST(ZooKeeper, DISABLED_ZkManagerExceptionTest)
 
     INFOR_LOG("删除节点.");
     ASSERT_EQ(ZOK, zk_manager.Delete(EXCEPTION_PATH, -1));
-
 }
 
 // ZookeeperManager 同步全局Watcher测试
 TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -1105,6 +1186,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherTest)
     zk_manager.InitFromFile(ZK_CONFIG_FILE_PATH);
 
     INFOR_LOG("开始连接.");
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Connect(make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
                                                                       int type, int state, const char *path) -> bool
     {
@@ -1132,6 +1214,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherTest)
         NOTIFY_SYNC;
         return false;
     }), 30000, 3000));
+    WATI_SYNC;
 
     INFOR_LOG("清除数据，删除根节点.");
     ASSERT_EQ(ZOK, zk_manager.DeletePathRecursion(TEST_ROOT_PATH));
@@ -1144,12 +1227,12 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherTest)
     ASSERT_EQ(ZNONODE, zk_manager.Exists(WATCHER_PATH, NULL, 1));
 
     INFOR_LOG("创建节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Create(WATCHER_PATH, ""));
     WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 
@@ -1162,12 +1245,12 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherTest)
     ASSERT_EQ(ZOK, zk_manager.Get(WATCHER_PATH, buf, &buflen, NULL, 1));
 
     INFOR_LOG("修改节点[%s]数据,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH, "123", -1));
     WATI_SYNC;
 
     INFOR_LOG("再次修改节点[%s]数据,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH, "1234", -1));
     WATI_SYNC;
 
@@ -1177,26 +1260,26 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherTest)
 
     static const uint32_t COUNT = 10;
     INFOR_LOG("操作节点[%s]的子节点,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string child_path = WATCHER_PATH + "/" + CppString::ToString(i);
         INFOR_LOG("创建节点[%s],触发Watcher.", child_path.c_str());
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.Create(child_path, ""));
+        WATI_SYNC;
     }
-    WATI_SYNC;
 
-    ASYNC_BEGIN;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string child_path = WATCHER_PATH + "/" + CppString::ToString(i);
         INFOR_LOG("删除节点[%s],触发Watcher.", child_path.c_str());
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.Delete(child_path, -1));
+        WATI_SYNC;
     }
-    WATI_SYNC;
 
-    INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    INFOR_LOG("删除节点[%s],触发1次Watcher.", WATCHER_PATH.c_str());
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 }
@@ -1205,7 +1288,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherTest)
 TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherExistsTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -1247,22 +1330,22 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherExistsTest)
     ASSERT_EQ(ZNONODE, zk_manager.Exists(WATCHER_PATH, NULL, 1));
 
     INFOR_LOG("创建节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Create(WATCHER_PATH, ""));
     WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 
     INFOR_LOG("再次创建节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Create(WATCHER_PATH, ""));
     WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 }
@@ -1271,7 +1354,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherExistsTest)
 TEST(ZooKeeper, ZkManagerSyncGlobalWatcherGetChildrenTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -1317,17 +1400,17 @@ TEST(ZooKeeper, ZkManagerSyncGlobalWatcherGetChildrenTest)
 
     string child_path = WATCHER_PATH + "/children";
     INFOR_LOG("创建子节点[%s],触发Watcher.", child_path.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Create(child_path, ""));
     WATI_SYNC;
 
     INFOR_LOG("删除子节点[%s],触发Watcher.", child_path.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(child_path, -1));
     WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 
@@ -1342,7 +1425,7 @@ TEST(ZooKeeper, ZkManagerSyncGlobalWatcherGetChildrenTest)
 TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
 {
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -1388,7 +1471,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
 
     static const string WATCHER_PATH = TEST_ROOT_PATH + "/watcher_test";
     INFOR_LOG("Exist注册一个节点不存在的Watcher,路径[%s],在节点创建后和删除后会调用.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AExists(WATCHER_PATH, make_shared<StatCompletionFunType>(
         [&](ZookeeperManager &zookeeper_manager, int rc, const Stat *stat)
     {
@@ -1402,7 +1485,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
     WATI_SYNC;
 
     INFOR_LOG("创建节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(2);
     ASSERT_EQ(ZOK, zk_manager.ACreate(WATCHER_PATH, WATCHER_PATH, make_shared<StringCompletionFunType>(
         [&](ZookeeperManager &zookeeper_manager, int rc, const char *value)
     {
@@ -1414,10 +1497,9 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
         NOTIFY_SYNC;
     })));
     WATI_SYNC;
-    WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(2);
     ASSERT_EQ(ZOK, zk_manager.ADelete(WATCHER_PATH, -1, make_shared<VoidCompletionFunType>(
         [&](ZookeeperManager &zookeeper_manager, int rc)
     {
@@ -1428,9 +1510,9 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
         NOTIFY_SYNC;
     })));
     WATI_SYNC;
-    WATI_SYNC;
 
     INFOR_LOG("再次创建节点[%s],不触发Watcher.", WATCHER_PATH.c_str());
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.ACreate(WATCHER_PATH, WATCHER_PATH, make_shared<StringCompletionFunType>(
         [&](ZookeeperManager &zookeeper_manager, int rc, const char *value)
     {
@@ -1445,6 +1527,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
 
     INFOR_LOG("Get注册Watcher测试,注册到[%s].", WATCHER_PATH.c_str());
     int last_version;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGet(WATCHER_PATH, make_shared<DataCompletionFunType>(
         [&](ZookeeperManager &zookeeper_manager, int rc, const char *value, int value_len, const Stat *stat)
     {
@@ -1462,16 +1545,17 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
     WATI_SYNC;
 
     INFOR_LOG("修改节点[%s]数据,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH, "123", -1));
     WATI_SYNC;
 
     INFOR_LOG("再次修改节点[%s]数据,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH, "1234", -1));
     WATI_SYNC;
 
     INFOR_LOG("注册子节点事件[%s].", WATCHER_PATH.c_str());
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.AGetChildren(WATCHER_PATH, make_shared<StringsStatCompletionFunType>(
         [&](ZookeeperManager &zookeeper_manager, int rc, const String_vector *children, const Stat *stat)
     {
@@ -1487,26 +1571,26 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
 
     static const uint32_t COUNT = 10;
     INFOR_LOG("操作节点[%s]的子节点,触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string child_path = WATCHER_PATH + "/" + CppString::ToString(i);
         INFOR_LOG("创建节点[%s],触发Watcher.", child_path.c_str());
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.Create(child_path, ""));
+        WATI_SYNC;
     }
-    WATI_SYNC;
 
-    ASYNC_BEGIN;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
         string child_path = WATCHER_PATH + "/" + CppString::ToString(i);
         INFOR_LOG("删除节点[%s],触发Watcher.", child_path.c_str());
+        ASYNC_BEGIN(1);
         ASSERT_EQ(ZOK, zk_manager.Delete(child_path, -1));
+        WATI_SYNC;
     }
-    WATI_SYNC;
 
     INFOR_LOG("删除节点[%s],触发Watcher.", WATCHER_PATH.c_str());
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Delete(WATCHER_PATH, -1));
     WATI_SYNC;
 }
@@ -1550,7 +1634,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerEphemeralNodeTest)
     EnableZkLink();
 
     // 跟锁相关的变量
-    bool done = false;
+    int32_t done = 0;
     mutex sync_lock;
     condition_variable sync_cond;
     unique_lock<mutex> sync_lock_u(sync_lock);
@@ -1561,6 +1645,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerEphemeralNodeTest)
 
     uint32_t expire_second = 5;
     INFOR_LOG("开始连接,超时时间%d秒.", expire_second);
+    ASYNC_BEGIN(1);
     ASSERT_EQ(ZOK, zk_manager.Connect(make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
                                                                       int type, int state, const char *path) -> bool
     {
@@ -1613,7 +1698,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerEphemeralNodeTest)
     }
 
     INFOR_LOG("使用iptables重新连接.");
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     EnableZkLink();
     WATI_SYNC;
 
@@ -1653,7 +1738,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerEphemeralNodeTest)
     }
 
     INFOR_LOG("使用iptables重新连接.");
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     EnableZkLink();
 
     INFOR_LOG("使用另一个连接删除临时节点的父节点,等待第一个连接恢复.");
@@ -1688,7 +1773,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerEphemeralNodeTest)
     }
 
     INFOR_LOG("使用iptables重新连接.");
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     EnableZkLink();
     WATI_SYNC;
 
@@ -1712,7 +1797,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerEphemeralNodeTest)
     }
 
     INFOR_LOG("使用iptables重新连接.");
-    ASYNC_BEGIN;
+    ASYNC_BEGIN(1);
     EnableZkLink();
 
     INFOR_LOG("使用另一个连接删除临时节点的父节点,并且将他的父节点改成临时节点,于是第一个节点的临时节点就无法创建,等待第一个连接恢复.");
@@ -1731,12 +1816,12 @@ TEST(ZooKeeper, DISABLED_ZkManagerEphemeralNodeTest)
         }
     }
 
-    INFOR_LOG("第二个连接释放，删除临时根节点，第一个连接恢复临时节点的创建.");
-    for (int32_t remain_second = 15; remain_second > 0; --remain_second)
-    {
-        INFOR_LOG("等待%d秒.", remain_second);
-        sleep(1);
-    }
+//     INFOR_LOG("第二个连接释放，删除临时根节点，第一个连接恢复临时节点的创建.");
+//     for (int32_t remain_second = 15; remain_second > 0; --remain_second)
+//     {
+//         INFOR_LOG("等待%d秒.", remain_second);
+//         sleep(1);
+//     }
 
     // TODO，这个目前不知道如何处理
 //     INFOR_LOG("原始连接恢复，临时节点已经重新创建了,版本号为1.");
