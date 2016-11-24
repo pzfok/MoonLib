@@ -55,6 +55,7 @@ namespace zookeeper
 // TODO(moontan)
 // 基础功能
 //  nowatch事件，如何区分是哪个？或者用另一种方式确定？
+//  内部暂时没做授权失败的Watcher通知处理
 // 高级功能
 //  分布式锁（通过最小临时节点实现）
 //  Leader选举（通过最小临时节点实现）
@@ -1380,7 +1381,10 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
     // 不自动注册Watcher或者abs_path为空，直接调用用户的Watcher即可
     if (!p_context->m_auto_reg_watcher || abs_path == NULL || *abs_path == '\0')
     {
-        static_cast<void>((*p_context->m_watcher_fun)(manager, type, state, abs_path));
+        if (p_context->m_watcher_fun && (*p_context->m_watcher_fun) != NULL)
+        {
+            static_cast<void>((*p_context->m_watcher_fun)(manager, type, state, abs_path));
+        }
         return;
     }
 
