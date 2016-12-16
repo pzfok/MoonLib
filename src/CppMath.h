@@ -5,11 +5,13 @@
 
 #include <unordered_set>
 #include <set>
+#include <map>
 #include <bitset>
 #include <cmath>
 
 using std::unordered_set;
 using std::set;
+using std::map;
 using std::bitset;
 
 class CppMath
@@ -54,7 +56,7 @@ public:
     // Method:    IsIntegerSquare
     // Access:    public static
     // Describe:  判断给定的数开平方后是否为整数
-    // Parameter: UINT32 num
+    // Parameter: uint32_t num
     // Returns:   bool
     //************************************
     static bool IsIntegerSquare(uint32_t num);
@@ -63,16 +65,25 @@ public:
     // Method:    GetDiffPrimerFactorNum
     // Access:    public static
     // Describe:  获取num所有的不同质因数
-    // Parameter: UINT32 num
-    // Returns:   set<UINT32>
+    // Parameter: uint32_t num
+    // Returns:   set<uint32_t>
     //************************************
     static set<uint32_t> GetDiffPrimerFactorNum(uint32_t num);
+
+    //************************************
+    // Method:    GetDiffPrimerFactorNum
+    // Access:    public static
+    // Describe:  获取num所有的质因数(包含个数)
+    // Parameter: uint32_t num
+    // Returns:   map<uint32_t, uint32_t>
+    //************************************
+    static map<uint32_t, uint32_t> GetPrimerFactorNum(uint32_t num);
 
     //************************************
     // Method:    GetDigitMap
     // Access:    public
     // Describe:  获取num包含的数字map
-    // Parameter: UINT32 num
+    // Parameter: uint32_t num
     // Parameter: UINT16 & digitMap 返回的num的数字map,为2进制
     // Returns:   bool              如果包含重复的数字,返回false,否则返回true
     //************************************
@@ -82,8 +93,8 @@ public:
     // Method:    IsSameDigitNum
     // Access:    public 
     // Describe:  判断N个数字是否都是由相同的数字组成,每个数字都必须包含不同的数字
-    // Parameter: const UINT32 nums[]   N个数字组成的数组
-    // Parameter: UINT32 numCount       数字个数
+    // Parameter: const uint32_t nums[]   N个数字组成的数组
+    // Parameter: uint32_t numCount       数字个数
     // Returns:   bool
     //************************************
     static bool IsNumsHaveSameDigit(const uint32_t nums[], uint32_t numCount);
@@ -92,8 +103,8 @@ public:
     // Method:    Factorial
     // Access:    public 
     // Describe:  获得n的阶乘
-    // Parameter: UINT32 n
-    // Returns:   UINT32
+    // Parameter: uint32_t n
+    // Returns:   uint32_t
     //************************************
     static uint32_t Factorial(uint32_t n);
 
@@ -101,15 +112,15 @@ public:
     // Method:    Combination
     // Access:    public 
     // Describe:  求(n,r)的组合
-    // Parameter: UINT32 n
-    // Parameter: UINT32 r
-    // Returns:   UINT32
+    // Parameter: uint32_t n
+    // Parameter: uint32_t r
+    // Returns:   uint32_t
     //************************************
     static uint32_t Combination(uint32_t n, uint32_t r);
 
     /** 获得[begin,end)之间的随机数
      *
-     * @param   uint32_t begin      
+     * @param   uint32_t begin
      * @param   uint32_t end        为0表示不设置范围
      * @retval  uint32_t
      * @author  moontan

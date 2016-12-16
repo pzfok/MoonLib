@@ -94,25 +94,44 @@ bool CppMath::IsIntegerSquare(uint32_t num)
 
 set<uint32_t> CppMath::GetDiffPrimerFactorNum(uint32_t num)
 {
-    uint32_t halfNum = num / 2;
+    map<uint32_t, uint32_t> factorsMap = GetPrimerFactorNum(num);
+
     set<uint32_t> factors;
-
-    for (uint32_t i = 2; i <= halfNum; ++i)
+    for (auto factorIt = factorsMap.begin(); factorIt != factorsMap.end(); ++factorIt)
     {
-        if (!CppMath::IsPrime(i))
-        {
-            continue;
-        }
+        factors.insert(factorIt->first);
+    }
 
-        if (num % i == 0)
-        {
-            factors.insert(i);
+    return factors;
+}
 
-            while (num % i == 0)
-            {
-                num /= i;
-            }
+map<uint32_t, uint32_t> CppMath::GetPrimerFactorNum(uint32_t num)
+{
+    map<uint32_t, uint32_t> factors;
+
+    // 先把2排除
+    while (num % 2 == 0)
+    {
+        ++factors[2];
+        num /= 2;
+    }
+
+    // 加1是为了避免6的根号为2，计算不到3这种情况
+    uint32_t sqrtOfNumPlus1 = sqrt((double)num) + 1;
+
+    // 从3开始，每次加2
+    for (uint32_t i = MIN_PRIMER + 1; i <= sqrtOfNumPlus1; i += 2)
+    {
+        while (num % i == 0)
+        {
+            ++factors[i];
+            num /= i;
         }
+    }
+
+    if (num != 1)
+    {
+        ++factors[num];
     }
 
     return factors;

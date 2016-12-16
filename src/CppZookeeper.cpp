@@ -1053,6 +1053,7 @@ int32_t ZookeeperManager::Multi(MultiOps &multi_ops, vector<zoo_op_result_t> &re
         return ZBADARGUMENTS;
     }
 
+    // TODO(moontan)：注意包量总大小限制1M
     int32_t ret = zoo_multi(m_zhandle, multi_ops.m_multi_ops.size(), &multi_ops.m_multi_ops[0], &results[0]);
     if (ret != ZOK)
     {

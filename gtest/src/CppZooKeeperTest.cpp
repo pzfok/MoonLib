@@ -667,6 +667,19 @@ TEST(ZooKeeper, DISABLED_ZkManagerReconnectTest)
 
     INFOR_LOG("使用iptables断开连接.");
     DisableZkLink();
+    for (int32_t remain_second = 4; remain_second > 0; --remain_second)
+    {
+        INFOR_LOG("等待%d秒.", remain_second);
+        sleep(1);
+    }
+
+    INFOR_LOG("使用iptables重新连接,session恢复.");
+    ASYNC_BEGIN(1);
+    EnableZkLink();
+    WATI_SYNC;
+
+    INFOR_LOG("使用iptables断开连接.");
+    DisableZkLink();
     for (int32_t remain_second = expire_second + 5; remain_second > 0; --remain_second)
     {
         INFOR_LOG("等待%d秒.", remain_second);

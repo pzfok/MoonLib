@@ -872,3 +872,11 @@ TEST(CppSTL, sorted_vector)
     EXPECT_TRUE(result.second == result.first);
     EXPECT_EQ(60, *result.first);
 }
+
+TEST(CppSTL, HashTest)
+{
+    // 使用std::hash获得字符串的哈希值
+    auto hasher = std::hash<string>();
+    string a = "123";
+    hasher(a);
+}

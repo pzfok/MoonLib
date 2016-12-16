@@ -18,7 +18,7 @@ class CppMysql
 public:
     static void MysqlQuery(MYSQL &mysql, const std::string &sqlCmd, CppLog *pCppLog = NULL)
     {
-        Log(pCppLog, CppLog::DEBUG, sqlCmd.c_str());
+        Log(pCppLog, CppLog::DEBUG, "%s", sqlCmd.c_str());
 
         if (mysql_query(&mysql, sqlCmd.c_str()))
         {
@@ -28,7 +28,7 @@ public:
 
     static void MysqlQuery(CMysql &mysql, const std::string &sqlCmd, CppLog *pCppLog = NULL) throw(CMysqlException)
     {
-        Log(pCppLog, CppLog::DEBUG, sqlCmd.c_str());
+        Log(pCppLog, CppLog::DEBUG, "%s", sqlCmd.c_str());
 
         mysql.FreeResult();
         mysql.Query(sqlCmd.c_str());

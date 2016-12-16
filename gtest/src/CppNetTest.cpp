@@ -50,8 +50,8 @@ static const uint16_t SERV_PORT = 20001;
 
 // 客户端配置
 static const uint32_t TOTAL_SECOND = 15;                    // 总共执行的秒数
-static const uint32_t CLIENT_COUNT_PER_THREAD = 30;         // 每个客户端线程包含的客户端数量
-static const uint32_t CLIENT_THREAD_COUNT = 4;              // 客户端线程数
+static const uint32_t CLIENT_COUNT_PER_THREAD = 10;         // 每个客户端线程包含的客户端数量
+static const uint32_t CLIENT_THREAD_COUNT = 2;              // 客户端线程数
 
 // 服务端配置
 static const ServerType SERVER_TYPE = MULTI_THREAD_SERVER;  // 服务端类型
@@ -988,7 +988,7 @@ void PressCallZookeeperClient::InitConnection(int fd)
 
 TEST(CppNet, DISABLED_PressCallZookeeper)
 {
-    PressCallZookeeperClient presscallZookeeperClient("127.0.0.1", 12187, TOTAL_SECOND, CLIENT_THREAD_COUNT,
+    PressCallZookeeperClient presscallZookeeperClient("127.0.0.1", 2181, TOTAL_SECOND, CLIENT_THREAD_COUNT,
                                                       CLIENT_COUNT_PER_THREAD, CLIENT_EPOLL_SIZE, &cppLog);
     presscallZookeeperClient.Run();
 }

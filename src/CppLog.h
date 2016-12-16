@@ -31,6 +31,7 @@
 // 重要的日志，比如ERROR和WARNN级别的，必要的时候需要flush到磁盘
 
 /* 为了标点符号的匹配,所有的THROW最后都不要加入标点符号,所有Log最后都要加入标点符号 */
+// 注意，不要这样使用：Log(cppLog, logLevel, str.c_str());即字符串默认作为格式的情况，如果字符串里有格式符，则会core掉
 #ifdef USE_CPP_LOG_MACRO
 #define Log(cppLog, logLevel, format, ...) if(cppLog != NULL && (cppLog)->mLogLevel <= (logLevel)){(cppLog)->LogMsg(std::string("[") + CppTime::GetUTimeStr() + "]["+CppString::ReplaceStr(#logLevel,"CppLog::")+"]" + FILE_LOCATION + "|" + CppString::GetArgs((format), ##__VA_ARGS__));}
 #define LOG_THROW(cppLog, logLevel, format, ...) {Log(cppLog, logLevel, format, ##__VA_ARGS__);throw;}
