@@ -108,6 +108,15 @@ public:
     //************************************
     static uint32_t Factorial(uint32_t n);
 
+    /** 带Cache的阶乘
+     *
+     * @param 	uint32_t n
+     * @param 	uint32_t cacheSize
+     * @retval 	uint32_t
+     * @author 	moontan
+     */
+    static uint32_t FactorialWithCache(uint32_t n, uint32_t cacheSize = 10000);
+
     //************************************
     // Method:    Combination
     // Access:    public 

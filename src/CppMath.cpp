@@ -203,9 +203,51 @@ uint32_t CppMath::Factorial(uint32_t n)
         result *= i;
     }
 
-    if (result == 0)
+    return result;
+}
+
+uint32_t CppMath::FactorialWithCache(uint32_t n, uint32_t cacheSize /*= 10000*/)
+{
+    static map<uint32_t, uint32_t> factorialCache;
+    if (n <= 1)
     {
-        cout << n << endl;
+        return 1;
+    }
+
+    auto findIt = factorialCache.find(n);
+    if (findIt != factorialCache.end())
+    {
+        return findIt->second;
+    }
+
+    // 找到N前面的一个值
+    uint32_t result = 1;
+    uint32_t i = 2;
+
+    findIt = factorialCache.lower_bound(n);
+    if (findIt != factorialCache.end() && findIt != factorialCache.begin())
+    {
+        --findIt;
+        result = findIt->second;
+        i = findIt->first + 1;
+    }
+
+    for (; i <= n; ++i)
+    {
+        result *= i;
+
+        // 缓存下来
+        if (factorialCache.size() < cacheSize)
+        {
+            factorialCache[i] = result;
+        }
+    }
+
+    // 从末尾删除
+    while (factorialCache.size() > cacheSize)
+    {
+        auto it = factorialCache.end();
+        factorialCache.erase(--it);
     }
 
     return result;
