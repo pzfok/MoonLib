@@ -21,7 +21,7 @@
 * CppSystem：系统相关
 * CppTime：时间相关
 * CppTinyxml：TinyXML的封装
-* CppZookeeper：Zookeeper C语言API的封装
+* CppZookeeper：Zookeeper C语言API的C++封装
 
 ## 使用方法
 可以只提取自己需要的.cpp和.h文件即可，如果需要编译成库的话，需要自己去寻找相关的其他库，需要的库可以在makefile中找到，里面也可以定义库路径存放的路径，默认是../ext/include中存放头文件，../ext/libs中存放库文件。
