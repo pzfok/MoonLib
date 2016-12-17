@@ -11,12 +11,14 @@ using namespace std;
 TEST(CppTest, DISABLED_DTSMusic)
 {
     // 列表地址：http://blog.sina.com.cn/s/articlelist_1197845451_8_1.html
+    // http://blog.sina.com.cn/s/articlelist_2477486401_1_1.html
 
     CppRegex titleReg("<title>.*?</title>");
     CppRegex listReg("http://blog.sina.com.cn/s/blog_.*?html");
-    for (uint32_t page = 1; page <= 20; ++page)
+    for (uint32_t page = 1; page <= 25; ++page)
     {
-        string html = CppCurl::Get(CppString::GetArgs("http://blog.sina.com.cn/s/articlelist_1197845451_8_%d.html", page));
+        //string html = CppCurl::Get(CppString::GetArgs("http://blog.sina.com.cn/s/articlelist_1197845451_8_%d.html", page));
+        string html = CppCurl::Get(CppString::GetArgs("http://blog.sina.com.cn/s/articlelist_2477486401_1_%d.html", page));
         vector<string> result;
         listReg.Matches(html, result);
         for (auto result_it = result.begin(); result_it != result.end(); ++result_it)
