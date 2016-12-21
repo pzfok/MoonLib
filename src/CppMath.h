@@ -27,10 +27,10 @@ public:
     //            如1.00005在epsilon为0.00005以上就很接近整数
     // Parameter: double doubleValue    要判断的double值
     // Parameter: double epsilon        判断的精度,0 < epsilon < 0.5
-    // Parameter: INT32 & intValue      如果接近,返回最接近的整数值
+    // Parameter: int64_t & intValue    如果接近,返回最接近的整数值
     // Returns:   bool                  接近返回true,否则返回false
     //************************************
-    static bool IsInt(double doubleValue, double epsilon, int32_t &intValue);
+    static bool IsInt(double doubleValue, double epsilon, int64_t &intValue);
 
     //************************************
     // Method:    Sign

@@ -13,6 +13,7 @@
 #include <list>
 #include <thread>
 #include <functional>
+#include <atomic>
 
 #include <zookeeper.h>
 #include <zk_adaptor.h>
@@ -93,12 +94,16 @@ void EnableZkLink()
 void ZookeeperApiTestGlobalWatcher1(zhandle_t *zh, int type, int state,
                                     const char *abs_path, void *p_zookeeper_context)
 {
+    static_cast<void>(zh);
+    static_cast<void>(state);
     INFOR_LOG("Watcher触发1,type[%d],path[%s],context_addr[%p].", type, abs_path, p_zookeeper_context);
 }
 
 void ZookeeperApiTestGlobalWatcher2(zhandle_t *zh, int type, int state,
                                     const char *abs_path, void *p_zookeeper_context)
 {
+    static_cast<void>(zh);
+    static_cast<void>(state);
     INFOR_LOG("Watcher触发2,type[%d],path[%s],context_addr[%p].", type, abs_path, p_zookeeper_context);
 }
 
@@ -1829,17 +1834,17 @@ TEST(ZooKeeper, DISABLED_ZkManagerEphemeralNodeTest)
         }
     }
 
-//     INFOR_LOG("第二个连接释放，删除临时根节点，第一个连接恢复临时节点的创建.");
-//     for (int32_t remain_second = 15; remain_second > 0; --remain_second)
-//     {
-//         INFOR_LOG("等待%d秒.", remain_second);
-//         sleep(1);
-//     }
+    //     INFOR_LOG("第二个连接释放，删除临时根节点，第一个连接恢复临时节点的创建.");
+    //     for (int32_t remain_second = 15; remain_second > 0; --remain_second)
+    //     {
+    //         INFOR_LOG("等待%d秒.", remain_second);
+    //         sleep(1);
+    //     }
 
-    // TODO，这个目前不知道如何处理
-//     INFOR_LOG("原始连接恢复，临时节点已经重新创建了,版本号为1.");
-//     ASSERT_EQ(ZOK, zk_manager.GetCString(EPHEMERAL_PATH, data, &stat));
-//     ASSERT_EQ(0, stat.version);
+        // TODO，这个目前不知道如何处理
+    //     INFOR_LOG("原始连接恢复，临时节点已经重新创建了,版本号为1.");
+    //     ASSERT_EQ(ZOK, zk_manager.GetCString(EPHEMERAL_PATH, data, &stat));
+    //     ASSERT_EQ(0, stat.version);
 }
 
 // ZookeeperManager 序列节点测试
@@ -1865,11 +1870,6 @@ TEST(ZooKeeper, DISABLED_ZkManagerSequenceNodeTest)
     INFOR_LOG("成功创建序列节点[%s],size[%lu].", real_path.c_str(), real_path.size());
     ASSERT_NE(real_path, SEQUENCE_PATH);
     ASSERT_LT(SEQUENCE_PATH.size(), strlen(real_path.c_str()));
-}
-
-extern "C"
-{
-    void free_completions(zhandle_t *zh, int callCompletion, int reason);
 }
 
 // ZookeeperManager ClientId测试
@@ -1974,6 +1974,94 @@ TEST(ZooKeeper, DISABLED_ZkManagerClientIdTest)
         Stat node_stat;
         ASSERT_EQ(ZNONODE, zk_manager.Get(SEQUENCE_PATH, const_cast<char *>(node_data.c_str()), &data_len, &node_stat));
     }
+}
+
+TEST(ZooKeeper, DISABLED_ZkManagerMultiNodeTest)
+{
+    // 跟锁相关的变量
+    int32_t done = 0;
+    mutex sync_lock;
+    condition_variable sync_cond;
+    unique_lock<mutex> sync_lock_u(sync_lock);
+    sync_lock_u.unlock();
+
+    uint32_t expire_second = 30;        // 设置Session超时时间
+    static const string PATH = TEST_ROOT_PATH + "/test_path";
+    ZookeeperManager zk_manager_global;
+    zk_manager_global.InitFromFile(ZK_CONFIG_FILE_PATH);
+
+    INFOR_LOG("全局客户端开始连接.");
+    ASSERT_EQ(ZOK, zk_manager_global.Connect(make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager, int type, int state, const char *path)
+    {
+        static_cast<void>(zookeeper_manager);
+        static_cast<void>(type);
+        static_cast<void>(state);
+        static_cast<void>(path);
+
+        NOTIFY_SYNC;
+        return false;
+    }), expire_second * 1000, 3000));
+
+    INFOR_LOG("清除数据，删除根节点.");
+    ASSERT_EQ(ZOK, zk_manager_global.DeletePathRecursion(TEST_ROOT_PATH));
+
+    INFOR_LOG("创建根节点.");
+    ASSERT_EQ(ZOK, zk_manager_global.CreatePathRecursion(TEST_ROOT_PATH));
+
+    INFOR_LOG("默认Watcher关注根节点的子节点事件.");
+    ScopedStringVector children;
+    ASSERT_EQ(ZOK, zk_manager_global.GetChildren(TEST_ROOT_PATH, children, 1));
+
+    static const uint32_t COUNT = 10000;
+    INFOR_LOG("创建%u个节点并且全部关注.", COUNT);
+    string real_path(128, '\0');
+    atomic<uint32_t> atomic_count;
+    for (uint32_t i = 0; i < COUNT; ++i)
+    {
+//         if (i % (COUNT / 10) == 0)
+//         {
+            INFOR_LOG("已经创建并关注%u个节点.", i);
+      //  }
+
+        ASYNC_BEGIN(1);
+        ASSERT_EQ(ZOK, zk_manager_global.Create(CppString::GetArgs("%s_%u", PATH.c_str(), i), "",
+                                                &real_path, &ZOO_OPEN_ACL_UNSAFE, 0));
+        WATI_SYNC;
+
+        ASSERT_EQ(ZOK, zk_manager_global.Exists(real_path, NULL, make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager, int type, int state, const char *path)
+        {
+            static_cast<void>(zookeeper_manager);
+            static_cast<void>(type);
+            static_cast<void>(state);
+            static_cast<void>(path);
+
+            NOTIFY_SYNC;
+            return false;
+        })));
+    }
+
+    
+
+    //     {
+    //         INFOR_LOG("等待Session超时.");
+    //         for (int32_t remain_second = expire_second + 5; remain_second > 0; --remain_second)
+    //         {
+    //             INFOR_LOG("等待%d秒.", remain_second);
+    //             sleep(1);
+    //         }
+    // 
+    //         ZookeeperManager zk_manager;
+    //         zk_manager.InitFromFile(ZK_CONFIG_FILE_PATH, &client_id);
+    // 
+    //         INFOR_LOG("使用ClinetID重新连接,会提示超时.");
+    //         ASSERT_EQ(ZOK, zk_manager.Connect(make_shared<WatcherFunType>(), expire_second * 1000, 3000));
+    // 
+    //         INFOR_LOG("获得子节点,应该不存在了.");
+    //         string node_data(MAX_DATA_LEN, '\0');
+    //         int data_len = node_data.size() - 1;
+    //         Stat node_stat;
+    //         ASSERT_EQ(ZNONODE, zk_manager.Get(SEQUENCE_PATH, const_cast<char *>(node_data.c_str()), &data_len, &node_stat));
+    //     }
 }
 
 #endif

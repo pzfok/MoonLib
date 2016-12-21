@@ -35,19 +35,19 @@ int32_t CppMath::Sign(T value)
     }
 }
 
-bool CppMath::IsInt(double doubleValue, double epsilon, int32_t &intValue)
+bool CppMath::IsInt(double doubleValue, double epsilon, int64_t &intValue)
 {
     if (epsilon > 0.5 || epsilon < 0)
     {
         return false;
     }
 
-    if (int32_t(doubleValue + epsilon) == int32_t(doubleValue - epsilon))
+    if (int32_t(doubleValue + epsilon) == int64_t(doubleValue - epsilon))
     {
         return false;
     }
 
-    int32_t value = int32_t(doubleValue);
+    int64_t value = int64_t(doubleValue);
 
     intValue = (fabs(doubleValue - value) > 0.5) ? (value + CppMath::Sign(doubleValue)) : (value);
     return true;

@@ -928,7 +928,7 @@ const string PressCallZookeeperClient::GetSendData(uint32_t threadId, int fd)
     RequestHeader h = {get_xid(), ZOO_SETDATA_OP};
     struct SetDataRequest req;
     static const string setData = "123";
-    req.path = "/a";
+    req.path = (char *)"/a";
     req.data.buff = (char*)setData.c_str();
     req.data.len = setData.size();
     req.version = -1;

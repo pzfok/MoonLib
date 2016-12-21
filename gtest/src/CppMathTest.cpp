@@ -7,7 +7,7 @@ using namespace std;
 
 TEST(CppMath, CppMathIsIntTest)
 {
-    int32_t n;
+    int64_t n;
 
     // 向下取整
     EXPECT_TRUE(CppMath::IsInt(1.0, 0.0005, n));
