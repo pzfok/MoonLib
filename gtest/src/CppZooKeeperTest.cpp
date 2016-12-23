@@ -2013,17 +2013,33 @@ TEST(ZooKeeper, DISABLED_ZkManagerMultiNodeTest)
     ASSERT_EQ(ZOK, zk_manager_global.GetChildren(TEST_ROOT_PATH, children, 1));
 
     static const uint32_t COUNT = 10000;
+    INFOR_LOG("创建%u个Watcher关注根节点.", COUNT);
+    for (uint32_t i = 0; i < COUNT; ++i)
+    {
+        ASSERT_EQ(ZOK, zk_manager_global.GetChildren(TEST_ROOT_PATH, children, make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager, int type, int state, const char *path)
+        {
+            static_cast<void>(zookeeper_manager);
+            static_cast<void>(type);
+            static_cast<void>(state);
+            static_cast<void>(path);
+
+            NOTIFY_SYNC;
+            return false;
+        })));
+    }
+
+    // 10001个子节点Watcher，大约需要2.5秒完成触发
     INFOR_LOG("创建%u个节点并且全部关注.", COUNT);
     string real_path(128, '\0');
     atomic<uint32_t> atomic_count;
     for (uint32_t i = 0; i < COUNT; ++i)
     {
-//         if (i % (COUNT / 10) == 0)
-//         {
-            INFOR_LOG("已经创建并关注%u个节点.", i);
-      //  }
+        // if (i % (COUNT / 10) == 0)
+        // {
+        INFOR_LOG("已经创建并关注%u个节点.", i);
+        // }
 
-        ASYNC_BEGIN(1);
+        ASYNC_BEGIN(COUNT + 1);
         ASSERT_EQ(ZOK, zk_manager_global.Create(CppString::GetArgs("%s_%u", PATH.c_str(), i), "",
                                                 &real_path, &ZOO_OPEN_ACL_UNSAFE, 0));
         WATI_SYNC;
@@ -2040,7 +2056,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerMultiNodeTest)
         })));
     }
 
-    
+
 
     //     {
     //         INFOR_LOG("等待Session超时.");
