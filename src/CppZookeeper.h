@@ -396,6 +396,16 @@ protected:
      */
     void ProcAsyncWatcher(ZookeeperCtx &context);
 
+    /** 删除原生API中指定Watcher
+     *
+     * @param 	int type
+     * @param 	const char * abs_path
+     * @param 	void * p_zookeeper_context
+     * @retval 	void
+     * @author 	moontan
+     */
+    void DeleteWatcher(int type, const char *abs_path, void *p_zookeeper_context);
+
     std::mutex m_connect_lock;
     std::condition_variable m_connect_cond;
 

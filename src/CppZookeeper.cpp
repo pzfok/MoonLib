@@ -33,19 +33,31 @@ CppLog g_cpp_log_stdout;
 // 需要在这里加入destroy_watcher_object_list和collectWatchers函数声明，并且在zk_hashtable.c中去掉destroy_watcher_object_list函数的static限定符后重新编译Zookeeper API
 // 如果不想修改zk源代码，也可以自己参考zk_hashtable.c实现一份
 // 这样可以更好保持和源代码的一致性
-namespace zookeeper
+#include <hashtable/hashtable_private.h>
+
+#define THREADED
+#include <zk_adaptor.h>
+
+typedef struct _watcher_object
 {
-extern "C"
+    watcher_fn watcher;
+    void* context;
+    struct _watcher_object* next;
+} watcher_object_t;
+
+struct watcher_object_list
 {
-    struct watcher_object_list_t;
-    watcher_object_list_t *collectWatchers(zhandle_t *zh, int type, char *path);
-    void destroy_watcher_object_list(watcher_object_list_t* list);
-}
-}
+    watcher_object_t* head;
+};
+
+struct _zk_hashtable
+{
+    struct hashtable* ht;
+};
+
 #else
 #include "util/string_utils.h"
 #include "log/log.h"
-#include <zk_hashtable.h>
 #endif
 using namespace std;
 
@@ -1287,6 +1299,86 @@ int32_t ZookeeperManager::GetCString(const string &path, string &data, Stat *sta
     return ret;
 }
 
+void ZookeeperManager::DeleteWatcher(int type, const char *abs_path, void *p_zookeeper_context)
+{
+    if (GetHandler() == NULL)
+    {
+        return;
+    }
+
+    // 要处理的Watcher哈希表，根据不同的type，有不同的表
+    list<hashtable *> hashtables_to_search;
+
+#define ADD_WATCHER_HASHTABLE(watchers) if ((watchers) != NULL && (watchers)->ht != NULL)hashtables_to_search.push_back((watchers)->ht)
+
+    if (type == ZOO_CREATED_EVENT || type == ZOO_CHANGED_EVENT)
+    {
+        ADD_WATCHER_HASHTABLE(GetHandler()->active_node_watchers);
+        ADD_WATCHER_HASHTABLE(GetHandler()->active_exist_watchers);
+    }
+    else if (type == ZOO_CHILD_EVENT)
+    {
+        ADD_WATCHER_HASHTABLE(GetHandler()->active_child_watchers);
+    }
+    else if (type == ZOO_DELETED_EVENT)
+    {
+        ADD_WATCHER_HASHTABLE(GetHandler()->active_node_watchers);
+        ADD_WATCHER_HASHTABLE(GetHandler()->active_exist_watchers);
+        ADD_WATCHER_HASHTABLE(GetHandler()->active_child_watchers);
+    }
+    else
+    {
+        // 无操作
+    }
+
+#undef ADD_WATCHER_HASHTABLE
+
+    list<void *> to_free;
+    for (auto hashtable_it = hashtables_to_search.begin(); hashtable_it != hashtables_to_search.end();
+         ++hashtable_it)
+    {
+        watcher_object_list_t* wl = (watcher_object_list_t *)hashtable_search(*hashtable_it, (void*)abs_path);
+        if (wl == NULL)
+        {
+            continue;
+        }
+
+        // 删除指定context的Watcher
+        watcher_object_t *p_watcher = wl->head;
+        watcher_object_t *p_last = p_watcher;
+        while (p_watcher != NULL)
+        {
+            // 要删除
+            if (p_watcher->context == p_zookeeper_context)
+            {
+                if (p_watcher == wl->head)
+                {
+                    // 头结点
+                    wl->head = p_watcher->next;
+                }
+                else
+                {
+                    p_last->next = p_watcher->next;
+                }
+
+                to_free.push_back(p_watcher);
+            }
+            else
+            {
+                // 不删除
+                p_last = p_watcher;
+            }
+
+            p_watcher = p_watcher->next;
+        }
+    }
+
+    for (auto free_it = to_free.begin(); free_it != to_free.end(); ++free_it)
+    {
+        free(*free_it);
+    }
+}
+
 void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
                                     const char *abs_path, void *p_zookeeper_context)
 {
@@ -1311,7 +1403,8 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
     // 不是Watcher类型的回调，忽略它
     if (p_context->m_watcher_type == ZookeeperCtx::NOT_WATCHER)
     {
-        ERR_LOG(0, 0, "Zookeeper:非Watcher类型的回调,watcher_type[%d].", p_context->m_watcher_type);
+        ERR_LOG(0, 0, "Zookeeper:非Watcher类型的回调,watcher_type[%d],context[%p].",
+                p_context->m_watcher_type, p_context);
         return;
     }
 
@@ -1620,8 +1713,11 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
 
             manager.DelCustomWatcher(abs_path, p_context);
 
-            // 删除上面的流程重注册的信息
-            destroy_watcher_object_list(collectWatchers(manager.m_zhandle, type, const_cast<char *>(abs_path)));
+            // 删除上面的流程重注册的信息，这里如果不删除的话，可能还会触发回调，但是context已经在上面被释放了
+            // 虽然有多重机制保障不会出问题，但是如果原始地址仍然是一个context，还是会出问题。还可能会出现更严重的内存访问错误的问题。
+            // 这里是删除原生API中回调的Watcher
+            manager.DeleteWatcher(type, abs_path, p_context);
+            //destroy_watcher_object_list(collectWatchers(manager.m_zhandle, type, const_cast<char *>(abs_path)));
         }
     }
 }

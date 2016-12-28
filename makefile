@@ -17,6 +17,7 @@ INC_DIR += -I${ROOT_DIR}/ext/include
 INC_DIR += -I${ROOT_DIR}/ext/include/CppUtil
 INC_DIR += -I${ROOT_DIR}/ext/include/zookeeper
 INC_DIR += -I${ROOT_DIR}/ext/include/zookeeper_generated
+INC_DIR += -I${ROOT_DIR}/ext/include/zookeeper_src
 
 #静态库文件路径
 STATIC_LIBS_DIR = ${ROOT_DIR}/ext/libs

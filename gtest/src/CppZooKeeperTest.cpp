@@ -122,66 +122,66 @@ TEST(ZooKeeper, DISABLED_ZookeeperApiTest)
     //       因此C API内部是以Path-Context作为Key来管理自定义Watcher的
     INFOR_LOG("注册Watcher");
     ret = zoo_wexists(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher1, NULL, NULL); // 触发
-    EXPECT_EQ(ZNONODE, ret);
+    ASSERT_EQ(ZNONODE, ret);
 
     // 重复注册1
     ret = zoo_wexists(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher1, NULL, NULL);     // 不触发
-    EXPECT_EQ(ZNONODE, ret);
+    ASSERT_EQ(ZNONODE, ret);
 
     // 不同的context
     ret = zoo_wexists(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher1, &ret, NULL);     // 触发
-    EXPECT_EQ(ZNONODE, ret);
+    ASSERT_EQ(ZNONODE, ret);
 
     // 不同的回调函数
     ret = zoo_wexists(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher2, NULL, NULL);     // 触发
-    EXPECT_EQ(ZNONODE, ret);
+    ASSERT_EQ(ZNONODE, ret);
 
     // 不同的回调函数+不同的参数
     ret = zoo_wexists(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher2, &ret, NULL);     // 触发
-    EXPECT_EQ(ZNONODE, ret);
+    ASSERT_EQ(ZNONODE, ret);
 
     // 重复注册2
     ret = zoo_wexists(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher2, &ret, NULL);     // 不触发
-    EXPECT_EQ(ZNONODE, ret);
+    ASSERT_EQ(ZNONODE, ret);
 
     INFOR_LOG("创建节点,触发Watcher.");
     ret = zoo_create(pZk, TEST_NODE.c_str(), "", 0, &ZOO_OPEN_ACL_UNSAFE, 0, NULL, 0);
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     // 测试删除节点的触发情况，使用3种方式注册Watcher，在删除节点的时候，只会触发一次
     ret = zoo_wexists(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher1, NULL, NULL);               // 触发
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     char data;
     int buflen = 1;
     ret = zoo_wget(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher1, NULL, &data, &buflen, NULL);  // 不触发
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     ScopedStringVector children;
     ret = zoo_wget_children(pZk, TEST_NODE.c_str(), &ZookeeperApiTestGlobalWatcher1, NULL, &children);    // 不触发
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     INFOR_LOG("删除节点.");
     ret = zoo_delete(pZk, TEST_NODE.c_str(), -1);
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     INFOR_LOG("创建节点.");
     ret = zoo_create(pZk, TEST_NODE.c_str(), "", 0, &ZOO_OPEN_ACL_UNSAFE, 0, NULL, 0);
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     // 测试删除节点的触发情况，使用3种方式注册Watcher，在删除节点的时候，只会触发一次
     ret = zoo_exists(pZk, TEST_NODE.c_str(), 1, NULL);
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     ret = zoo_get(pZk, TEST_NODE.c_str(), 1, &data, &buflen, NULL);
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     ret = zoo_get_children(pZk, TEST_NODE.c_str(), 1, &children);
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     INFOR_LOG("删除节点.");
     ret = zoo_delete(pZk, TEST_NODE.c_str(), -1);
-    EXPECT_EQ(ZOK, ret);
+    ASSERT_EQ(ZOK, ret);
 
     // 关闭连接
     zookeeper_close(pZk);
@@ -353,8 +353,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
         {
             static_cast<void>(zookeeper_manager);
 
-            EXPECT_EQ(ZOK, rc);
-            EXPECT_EQ(zk_manager.ChangeToAbsPath(node_name), value);
+            ASSERT_EQ(ZOK, rc);
+            ASSERT_EQ(zk_manager.ChangeToAbsPath(node_name), value);
 
             NOTIFY_SYNC;
         })));
@@ -368,7 +368,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
+        ASSERT_EQ(ZOK, rc);
 
         NOTIFY_SYNC;
     })));
@@ -380,8 +380,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZNONODE, rc);
-        EXPECT_EQ(NULL, stat);
+        ASSERT_EQ(ZNONODE, rc);
+        ASSERT_EQ(NULL, stat);
 
         NOTIFY_SYNC;
     })));
@@ -393,9 +393,9 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(static_cast<int32_t>(COUNT - 1), children->count);
-        EXPECT_EQ(NULL, stat);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(static_cast<int32_t>(COUNT - 1), children->count);
+        ASSERT_EQ(NULL, stat);
 
         NOTIFY_SYNC;
     })));
@@ -407,9 +407,9 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(static_cast<int32_t>(COUNT - 1), children->count);
-        EXPECT_EQ(NULL, stat);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(static_cast<int32_t>(COUNT - 1), children->count);
+        ASSERT_EQ(NULL, stat);
 
         NOTIFY_SYNC;
     })));
@@ -422,8 +422,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(0, stat->version);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(0, stat->version);
 
         NOTIFY_SYNC;
     })));
@@ -436,12 +436,12 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
+        ASSERT_EQ(ZOK, rc);
         string node_data(value, value_len);
-        EXPECT_EQ(1, value_len);
-        EXPECT_EQ(0, stat->version);
+        ASSERT_EQ(1, value_len);
+        ASSERT_EQ(0, stat->version);
         last_version = stat->version;
-        EXPECT_EQ(0, strcmp(path_to_op.c_str(), node_data.c_str()));
+        ASSERT_EQ(0, strcmp(path_to_op.c_str(), node_data.c_str()));
 
         NOTIFY_SYNC;
     })));
@@ -454,8 +454,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(last_version + 1, stat->version);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(last_version + 1, stat->version);
         last_version = stat->version;
 
         NOTIFY_SYNC;
@@ -468,11 +468,11 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
+        ASSERT_EQ(ZOK, rc);
         string node_data(value, value_len);
-        EXPECT_EQ(static_cast<int32_t>(new_data.size()), value_len);
-        EXPECT_EQ(last_version, stat->version);
-        EXPECT_EQ(0, strcmp(new_data.c_str(), node_data.c_str()));
+        ASSERT_EQ(static_cast<int32_t>(new_data.size()), value_len);
+        ASSERT_EQ(last_version, stat->version);
+        ASSERT_EQ(0, strcmp(new_data.c_str(), node_data.c_str()));
 
         NOTIFY_SYNC;
     })));
@@ -484,8 +484,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(last_version + 1, stat->version);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(last_version + 1, stat->version);
         last_version = stat->version;
 
         NOTIFY_SYNC;
@@ -499,13 +499,13 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(0, stat->aversion);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(0, stat->aversion);
         last_aversion = stat->aversion;
-        EXPECT_EQ(ZOO_OPEN_ACL_UNSAFE.count, acl->count);
-        EXPECT_EQ(ZOO_OPEN_ACL_UNSAFE.data[0].perms, acl->data[0].perms);
-        EXPECT_EQ(0, strcmp(ZOO_OPEN_ACL_UNSAFE.data[0].id.id, acl->data[0].id.id));
-        EXPECT_EQ(0, strcmp(ZOO_OPEN_ACL_UNSAFE.data[0].id.scheme, acl->data[0].id.scheme));
+        ASSERT_EQ(ZOO_OPEN_ACL_UNSAFE.count, acl->count);
+        ASSERT_EQ(ZOO_OPEN_ACL_UNSAFE.data[0].perms, acl->data[0].perms);
+        ASSERT_EQ(0, strcmp(ZOO_OPEN_ACL_UNSAFE.data[0].id.id, acl->data[0].id.id));
+        ASSERT_EQ(0, strcmp(ZOO_OPEN_ACL_UNSAFE.data[0].id.scheme, acl->data[0].id.scheme));
 
         NOTIFY_SYNC;
     })));
@@ -517,7 +517,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
+        ASSERT_EQ(ZOK, rc);
 
         NOTIFY_SYNC;
     })));
@@ -529,13 +529,13 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(1, stat->aversion);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(1, stat->aversion);
         last_aversion = stat->aversion;
-        EXPECT_EQ(ZOO_READ_ACL_UNSAFE.count, acl->count);
-        EXPECT_EQ(ZOO_READ_ACL_UNSAFE.data[0].perms, acl->data[0].perms);
-        EXPECT_EQ(0, strcmp(ZOO_READ_ACL_UNSAFE.data[0].id.id, acl->data[0].id.id));
-        EXPECT_EQ(0, strcmp(ZOO_READ_ACL_UNSAFE.data[0].id.scheme, acl->data[0].id.scheme));
+        ASSERT_EQ(ZOO_READ_ACL_UNSAFE.count, acl->count);
+        ASSERT_EQ(ZOO_READ_ACL_UNSAFE.data[0].perms, acl->data[0].perms);
+        ASSERT_EQ(0, strcmp(ZOO_READ_ACL_UNSAFE.data[0].id.id, acl->data[0].id.id));
+        ASSERT_EQ(0, strcmp(ZOO_READ_ACL_UNSAFE.data[0].id.scheme, acl->data[0].id.scheme));
 
         NOTIFY_SYNC;
     })));
@@ -555,8 +555,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(multi_ops->Size(), multi_results->size());
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(multi_ops->Size(), multi_results->size());
 
         NOTIFY_SYNC;
     })));
@@ -1102,10 +1102,10 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncCustomWatcherTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(static_cast<int32_t>(COUNT), children->count);
-        EXPECT_EQ(static_cast<int32_t>(COUNT), stat->numChildren);
-        EXPECT_EQ(2, stat->version);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(static_cast<int32_t>(COUNT), children->count);
+        ASSERT_EQ(static_cast<int32_t>(COUNT), stat->numChildren);
+        ASSERT_EQ(2, stat->version);
 
         NOTIFY_SYNC;
     }), make_shared<WatcherFunType>(), true));
@@ -1368,6 +1368,102 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncGlobalWatcherExistsTest)
     WATI_SYNC;
 }
 
+extern "C"
+{
+    typedef struct _watcher_object
+    {
+        watcher_fn watcher;
+        void* context;
+        struct _watcher_object* next;
+    } watcher_object_t;
+
+    struct watcher_object_list
+    {
+        watcher_object_t* head;
+    };
+
+    typedef struct watcher_object_list watcher_object_list_t;
+
+
+    //struct watcher_object_list_t;
+    watcher_object_list_t *collectWatchers(zhandle_t *zh, int type, char *path);
+    void destroy_watcher_object_list(watcher_object_list_t* list);
+}
+
+// 停止重注册逻辑
+TEST(ZooKeeper, DISABLED_ZkManagerStopWatcherTest)
+{
+    // 跟锁相关的变量
+    int32_t done = 0;
+    mutex sync_lock;
+    condition_variable sync_cond;
+    unique_lock<mutex> sync_lock_u(sync_lock);
+    sync_lock_u.unlock();
+
+    ZookeeperManager zk_manager;
+    zk_manager.InitFromFile(ZK_CONFIG_FILE_PATH);
+
+    INFOR_LOG("开始连接.");
+    ASSERT_EQ(ZOK, zk_manager.Connect(make_shared<WatcherFunType>(), 30000, 3000));
+
+    INFOR_LOG("清除数据，删除根节点.");
+    ASSERT_EQ(ZOK, zk_manager.DeletePathRecursion(TEST_ROOT_PATH));
+
+    INFOR_LOG("创建根节点.");
+    ASSERT_EQ(ZOK, zk_manager.CreatePathRecursion(TEST_ROOT_PATH));
+
+    static const string WATCHER_PATH2 = TEST_ROOT_PATH + "/watcher_test2";
+    INFOR_LOG("对节点[%s]注册3个Watcherd，其中2个只触发1次.", WATCHER_PATH2.c_str());
+    ASSERT_EQ(ZOK, zk_manager.Create(WATCHER_PATH2, ""));
+
+    ASSERT_EQ(ZOK, zk_manager.Exists(WATCHER_PATH2, NULL, make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
+                                                                                          int type, int state, const char *path) -> bool
+    {
+        static_cast<void>(zookeeper_manager);
+        static_cast<void>(path);
+        static_cast<void>(state);
+        static_cast<void>(type);
+
+        NOTIFY_SYNC;
+        return true;
+    })));
+
+    ASSERT_EQ(ZOK, zk_manager.Exists(WATCHER_PATH2, NULL, make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
+                                                                                          int type, int state, const char *path) -> bool
+    {
+        static_cast<void>(zookeeper_manager);
+        static_cast<void>(path);
+        static_cast<void>(state);
+        static_cast<void>(type);
+
+        NOTIFY_SYNC;
+        return false;
+    })));
+
+    ASSERT_EQ(ZOK, zk_manager.Exists(WATCHER_PATH2, NULL, make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager,
+                                                                                          int type, int state, const char *path) -> bool
+    {
+        static_cast<void>(zookeeper_manager);
+        static_cast<void>(path);
+        static_cast<void>(state);
+        static_cast<void>(type);
+
+        NOTIFY_SYNC;
+        return true;
+    })));
+
+    INFOR_LOG("修改节点[%s]数据，触发3次Watcher.", WATCHER_PATH2.c_str());
+    ASYNC_BEGIN(3);
+    ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH2, "test", -1));
+    WATI_SYNC;
+
+    sleep(1);
+    INFOR_LOG("再次修改节点[%s]数据，触发1次Watcher.", WATCHER_PATH2.c_str());
+    ASYNC_BEGIN(1);
+    ASSERT_EQ(ZOK, zk_manager.Set(WATCHER_PATH2, "test", -1));
+    WATI_SYNC;
+}
+
 // 这次使用GetChildren接口进行注册，在节点删除后，不会重新注册.
 TEST(ZooKeeper, ZkManagerSyncGlobalWatcherGetChildrenTest)
 {
@@ -1496,7 +1592,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
         static_cast<void>(zookeeper_manager);
         static_cast<void>(stat);
 
-        EXPECT_EQ(ZNONODE, rc);
+        ASSERT_EQ(ZNONODE, rc);
 
         NOTIFY_SYNC;
     }), 1));
@@ -1509,8 +1605,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(zk_manager.ChangeToAbsPath(WATCHER_PATH), value);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(zk_manager.ChangeToAbsPath(WATCHER_PATH), value);
 
         NOTIFY_SYNC;
     })));
@@ -1523,7 +1619,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
+        ASSERT_EQ(ZOK, rc);
 
         NOTIFY_SYNC;
     })));
@@ -1536,8 +1632,8 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(zk_manager.ChangeToAbsPath(WATCHER_PATH), value);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(zk_manager.ChangeToAbsPath(WATCHER_PATH), value);
 
         NOTIFY_SYNC;
     })));
@@ -1551,12 +1647,12 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
+        ASSERT_EQ(ZOK, rc);
         string node_data(value, value_len);
-        EXPECT_EQ(static_cast<int32_t>(WATCHER_PATH.size()), value_len);
-        EXPECT_EQ(0, stat->version);
+        ASSERT_EQ(static_cast<int32_t>(WATCHER_PATH.size()), value_len);
+        ASSERT_EQ(0, stat->version);
         last_version = stat->version;
-        EXPECT_EQ(0, strcmp(WATCHER_PATH.c_str(), node_data.c_str()));
+        ASSERT_EQ(0, strcmp(WATCHER_PATH.c_str(), node_data.c_str()));
 
         NOTIFY_SYNC;
     }), 1));
@@ -1579,9 +1675,9 @@ TEST(ZooKeeper, DISABLED_ZkManagerAsyncGlobalWatcherTest)
     {
         static_cast<void>(zookeeper_manager);
 
-        EXPECT_EQ(ZOK, rc);
-        EXPECT_EQ(0, children->count);
-        EXPECT_EQ(NULL, stat);
+        ASSERT_EQ(ZOK, rc);
+        ASSERT_EQ(0, children->count);
+        ASSERT_EQ(NULL, stat);
 
         NOTIFY_SYNC;
     }), 1));
@@ -1976,6 +2072,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerClientIdTest)
     }
 }
 
+// 通知性能测试
 TEST(ZooKeeper, DISABLED_ZkManagerMultiNodeTest)
 {
     // 跟锁相关的变量
