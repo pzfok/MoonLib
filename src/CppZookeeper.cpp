@@ -30,35 +30,40 @@ CppLog g_cpp_log_stdout;
 #endif
 #define DEBUG_LOG(a,b,format,...)  Log((CPP_LOG_INSTANCE), CppLog::DEBUG, format, ##__VA_ARGS__)
 
-// 需要在这里加入destroy_watcher_object_list和collectWatchers函数声明，并且在zk_hashtable.c中去掉destroy_watcher_object_list函数的static限定符后重新编译Zookeeper API
-// 如果不想修改zk源代码，也可以自己参考zk_hashtable.c实现一份
-// 这样可以更好保持和源代码的一致性
+#else
+#include "util/string_utils.h"
+#include "log/log.h"
+#endif
+
+// hashtable_search需要包含
 #include <hashtable/hashtable_private.h>
 
+// 这个宏必须加上，因为封装API基于多线程，多线程和单线程的对象是不一样的，二者不能共用
 #define THREADED
 #include <zk_adaptor.h>
 
+// 用于删除注册的Watcher，数据结构从zk_hashtable.c中获得
 typedef struct _watcher_object
 {
+#ifndef USE_CPP_LOG_MACRO
+    zookeeper::watcher_fn watcher;
+#else 
     watcher_fn watcher;
+#endif
     void* context;
     struct _watcher_object* next;
 } watcher_object_t;
-
-struct watcher_object_list
-{
-    watcher_object_t* head;
-};
 
 struct _zk_hashtable
 {
     struct hashtable* ht;
 };
 
-#else
-#include "util/string_utils.h"
-#include "log/log.h"
-#endif
+struct watcher_object_list
+{
+    watcher_object_t* head;
+};
+
 using namespace std;
 
 namespace zookeeper
@@ -68,6 +73,7 @@ namespace zookeeper
 // 基础功能
 //  nowatch事件，如何区分是哪个？或者用另一种方式确定？
 //  内部暂时没做授权失败的Watcher通知处理
+//  使用zoo_set_log_stream设置日志的输出文件
 // 高级功能
 //  分布式锁（通过最小临时节点实现）
 //  Leader选举（通过最小临时节点实现）

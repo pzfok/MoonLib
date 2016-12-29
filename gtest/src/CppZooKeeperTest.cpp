@@ -2109,7 +2109,7 @@ TEST(ZooKeeper, DISABLED_ZkManagerMultiNodeTest)
     ScopedStringVector children;
     ASSERT_EQ(ZOK, zk_manager_global.GetChildren(TEST_ROOT_PATH, children, 1));
 
-    static const uint32_t COUNT = 10000;
+    static const uint32_t COUNT = 100;
     INFOR_LOG("创建%u个Watcher关注根节点.", COUNT);
     for (uint32_t i = 0; i < COUNT; ++i)
     {
