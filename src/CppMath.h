@@ -64,7 +64,7 @@ public:
     //************************************
     // Method:    GetDiffPrimerFactorNum
     // Access:    public static
-    // Describe:  获取num所有的不同质因数
+    // Describe:  获取num所有的不同质因数（包括自己）
     // Parameter: uint32_t num
     // Returns:   set<uint32_t>
     //************************************
@@ -73,7 +73,7 @@ public:
     //************************************
     // Method:    GetDiffPrimerFactorNum
     // Access:    public static
-    // Describe:  获取num所有的质因数(包含个数)
+    // Describe:  获取num所有的质因数(包含个数，包括自己)
     // Parameter: uint32_t num
     // Returns:   map<uint32_t, uint32_t>
     //************************************

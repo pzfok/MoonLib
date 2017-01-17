@@ -2177,4 +2177,37 @@ TEST(ZooKeeper, DISABLED_ZkManagerMultiNodeTest)
     //     }
 }
 
+// 断开连接测试
+TEST(ZooKeeper, DISABLED_ZkManagerDisconnectTest)
+{
+    uint32_t expire_second = 30;        // 设置Session超时时间
+    static const string PATH = TEST_ROOT_PATH + "/test_path";
+    ZookeeperManager zk_manager_global;
+    zk_manager_global.Init("127.0.0.1:2281,127.0.0.1:2282,127.0.0.1:2283");
+
+    INFOR_LOG("全局客户端开始连接.");
+    ASSERT_EQ(ZOK, zk_manager_global.Connect(make_shared<WatcherFunType>([&](ZookeeperManager &zookeeper_manager, int type, int state, const char *path)
+    {
+        static_cast<void>(zookeeper_manager);
+        static_cast<void>(type);
+        static_cast<void>(state);
+        static_cast<void>(path);
+
+        INFOR_LOG("收到通知type[%d],state[%d].", type, state);
+
+        return false;
+    }), expire_second * 1000, 3000));
+
+    while (true)
+    {
+        sockaddr addraaa;
+        sockaddr_in &sin = (sockaddr_in &)addraaa;
+        socklen_t addr_len = sizeof(addraaa);
+        zookeeper_get_connected_host(zk_manager_global.GetHandler(), &addraaa, &addr_len);
+        uint16_t port = ntohs(sin.sin_port);
+        INFOR_LOG("连接的服务器是:%s:%d", inet_ntoa(sin.sin_addr), port);
+        sleep(1);
+    }
+}
+
 #endif

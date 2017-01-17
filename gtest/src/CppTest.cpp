@@ -67,3 +67,39 @@ TEST(CppTest, VTable)
     pFun = reinterpret_cast<Fun>(*(reinterpret_cast<int64_t*>(*reinterpret_cast<int64_t*>(&b)) + 2));
     EXPECT_EQ("Base::h", pFun());
 }
+
+TEST(CppTest, TempTest)
+{
+    uint32_t a = 10;
+    uint32_t b = 42;
+    cout << a - b << endl;
+}
+
+TEST(CppTest, defaultMacro)
+{
+    cout << __FILE__ << endl;           // src/CppTest.cpp
+    cout << __LINE__ << endl;           // 81
+    cout << __DATE__ << endl;           // Jan 16 2017
+    cout << __TIME__ << endl;           // 11:26:35
+    cout << __TIMESTAMP__ << endl;      // Mon Jan 16 11:26:34 2017
+    cout << __FUNCTION__ << endl;       // TestBody
+}
+
+void defaultFunc(int a, int b, int c = 1);
+
+// 可以在现有的默认参数定义中添加默认参数
+void defaultFunc(int a, int b = 2, int c);
+
+void defaultFunc(int a, int b, int c)
+{
+    static_cast<void>(a);
+    static_cast<void>(b);
+    static_cast<void>(c);
+}
+
+TEST(CppTest, defaultParam)
+{
+    defaultFunc(1);
+    defaultFunc(1, 2);
+    defaultFunc(1, 2, 3);
+}

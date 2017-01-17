@@ -1,9 +1,17 @@
 #include <thread>
 #include <mutex>
 #include <iostream>
+#include <list>
+#include <map>
 #include <condition_variable>
+#include <atomic>
 
 #include "gtest/gtest.h"
+
+#include <CppMath.h>
+#include <CppLog.h>
+
+#include "global.h"
 
 using namespace std;
 
@@ -179,4 +187,122 @@ TEST(CppThreadTest, Mutex)
 
     for (auto& th : threads) th.join();
     std::cout << counter << " successful increases of the counter.\n";
+}
+
+shared_ptr<map<uint32_t, uint32_t>> GetData(shared_ptr<map<uint32_t, uint32_t>> &data, mutex &dataLock)
+{
+    unique_lock<mutex> lock(dataLock);
+    return data;
+}
+
+// 无锁配置
+// 用于一段缓存，读可以缓更新，写可以随时写，但是不加锁也不会冲突的情况
+TEST(CppThreadTest, DISABLED_LocklessBufferWithSharedPtr)
+{
+    static const uint32_t READ_THREAD_COUNT = 30;       // 读线程数量
+    static const uint32_t WRITE_THREAD_COUNT = 30;      // 写线程数量
+    static const uint32_t TEST_SECOND = 30;             // 测试时间
+    static const bool USE_LOCK = true;                 // 是否使用mutex锁
+
+    list<thread> readThreads;
+    list<thread> writeThreads;
+
+    mutex dataLock;
+
+    // 这个是数据，用shared_ptr包起来
+    shared_ptr<map<uint32_t, uint32_t>> data = make_shared<map<uint32_t, uint32_t>>();
+    uint32_t sum = 0;
+    uint32_t lockCount = 0;
+    bool stop = false;
+
+    for (uint32_t i = 0; i < READ_THREAD_COUNT; ++i)
+    {
+        thread th([&]()
+        {
+            while (!stop)
+            {
+                // 读取数据
+                shared_ptr<map<uint32_t, uint32_t>> dataBak;
+                if (USE_LOCK)
+                {
+                    // 加锁版本
+//                     dataLock.lock();
+//                     dataBak = data;
+//                     dataLock.unlock();
+
+                    dataBak = GetData(data, dataLock);
+                }
+                else
+                {
+                    // 原子操作版本
+                    dataBak = atomic_load(&data);
+                }
+
+                ++lockCount;
+                for (auto dataIt = dataBak->begin(); dataIt != dataBak->end(); ++dataIt)
+                {
+                    // 这里只要有for循环就好了，如果数据结构出错，循环挂掉
+                    sum += dataIt->first;
+                    sum += dataIt->second;
+                }
+            }
+        });
+        readThreads.push_back(move(th));
+    }
+
+    for (uint32_t i = 0; i < WRITE_THREAD_COUNT; ++i)
+    {
+        thread th([&]()
+        {
+            while (!stop)
+            {
+                // 写入数据，构造一个数据，然后swap掉原数据
+                map<uint32_t, uint32_t> dataNew;
+                uint32_t count = CppMath::Random(0, 1000);      // 数据量大小
+                for (uint32_t j = 0; j < count; ++j)
+                {
+                    dataNew[j] = j;
+                }
+
+                auto dataaaa = make_shared<map<uint32_t, uint32_t>>(move(dataNew));
+                if (USE_LOCK)
+                {
+                    // 加锁版本
+                    dataLock.lock();
+                    data.swap(dataaaa);
+                    dataLock.unlock();
+                }
+                else
+                {
+                    // 原子操作版本
+                    atomic_exchange(&data, dataaaa);
+                    //atomic_store(&data, dataaaa);
+                }
+
+                // 此时dataNew应该是没有数据的，因为move掉了
+                ASSERT_EQ(static_cast<size_t>(0), dataNew.size());
+            }
+        });
+        readThreads.push_back(move(th));
+    }
+
+    // 等待时间到
+    for (uint32_t i = 0; i < TEST_SECOND; ++i)
+    {
+        INFOR_LOG("已经运行[%u]秒,总共[%u]秒,还剩下[%u]秒结束.", i, TEST_SECOND, TEST_SECOND - i);
+        sleep(1);
+    }
+
+    stop = true;
+    for (auto th_it = readThreads.begin(); th_it != readThreads.end(); ++th_it)
+    {
+        th_it->join();
+    }
+
+    for (auto th_it = writeThreads.begin(); th_it != writeThreads.end(); ++th_it)
+    {
+        th_it->join();
+    }
+
+    INFOR_LOG("sum的值为[%u],lockCount[%u].", sum, lockCount);
 }

@@ -11,6 +11,7 @@
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
+#include <forward_list>
 #include <ext/slist>
 
 #include "gtest/gtest.h"
@@ -879,4 +880,58 @@ TEST(CppSTL, HashTest)
     auto hasher = std::hash<string>();
     string a = "123";
     hasher(a);
+}
+
+TEST(CppSTL, STLArray)
+{
+    array<int32_t, 10> arrayFor10;
+    for (auto &i : arrayFor10)
+    {
+        i = 1;
+    }
+}
+
+// 通过构造函数去添加元素，避免不必要的拷贝
+TEST(CppSTL, emplace)
+{
+    vector<int32_t> aVec;
+    for (uint32_t i = 0; i < 10; ++i)
+    {
+        aVec.emplace_back(i);
+    }
+}
+
+// 单向链表
+TEST(CppSTL, forward_list)
+{
+    forward_list<int> fl = {1,2,3,4,5};
+
+    // 删除的是begin后面的那个元素2
+    fl.erase_after(fl.begin());
+
+    // 第一个元素还是1，第2个元素变成了3
+    EXPECT_EQ(1, fl.front());
+
+    auto secondIt = fl.begin();
+    ++secondIt;
+    EXPECT_EQ(3, *secondIt);
+
+    // 在1后面添加2
+    fl.insert_after(fl.begin(), 2);
+    secondIt = fl.begin();
+    ++secondIt;
+    EXPECT_EQ(2, *secondIt);
+
+    // 在列表头后面添加0，这里使用到了一个before_begin的迭代器，这个迭代器不能解引用
+    fl.emplace_after(fl.before_begin(), 0);
+    EXPECT_EQ(0, *fl.begin());
+}
+
+TEST(CppSTL, string)
+{
+    // 数值转换
+    EXPECT_EQ("123", to_string(123));
+
+    string numStr = "123";
+    EXPECT_EQ(static_cast<uint64_t>(123), stoul(numStr));
 }

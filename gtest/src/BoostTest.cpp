@@ -25,6 +25,9 @@
 #include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/detail/xml_parser_writer_settings.hpp>
 
 #include <CppString.h>
 
@@ -110,7 +113,7 @@ TEST(Boost, muilt_index)
     persons.insert(Person("Caesar", 25));
 
     // 默认为第一个索引接口：姓名
-    EXPECT_EQ(1, persons.count("Boris"));
+    EXPECT_EQ((size_t)1, persons.count("Boris"));
 
     // 获得年龄索引接口
     const person_multi::nth_index<1>::type &age_index = persons.get<1>();
@@ -277,8 +280,8 @@ TEST(Boost, InterprocessSharedMemoryWithObject)
 
     //Create an array of 3 elements of MyType initializing each one
     //to a different value {0.0, 0}, {1.0, 1}, {2.0, 2}...
-    float float_initializer[3] = { 0.0, 1.0, 2.0 };
-    int   int_initializer[3] = { 0, 1, 2 };
+    float float_initializer[3] = {0.0, 1.0, 2.0};
+    int   int_initializer[3] = {0, 1, 2};
 
     MyType *array_it = segment.construct_it < MyType >
         ("MyType array from it")    // name of the object
@@ -479,12 +482,12 @@ TEST(Boost, InterprocessSharedMemoryWithMap)
     //associated with a c-std::string. Erase previous shared memory with the name
     //to be used and create the memory segment at the specified address and initialize resources
     managed_shared_memory segment
-        (create_only
-        , MEMORY_NAME //segment name
-        , 65536);          //segment size in bytes
+    (create_only
+     , MEMORY_NAME //segment name
+     , 65536);          //segment size in bytes
 
-    //Note that map<Key, MappedType>'s value_type is std::pair<const Key, MappedType>,
-    //so the allocator must allocate that pair.
+ //Note that map<Key, MappedType>'s value_type is std::pair<const Key, MappedType>,
+ //so the allocator must allocate that pair.
     typedef int32_t KeyType;
     typedef float   MappedType;
     typedef std::pair<const KeyType, MappedType> ValueType;
@@ -511,9 +514,9 @@ TEST(Boost, InterprocessSharedMemoryWithMap)
     MyMap *mymap =
         segment.construct<MyMap>("MyMap")      //object name
         (std::less<KeyType>() //first  ctor parameter
-        , alloc_inst);     //second ctor parameter
+         , alloc_inst);     //second ctor parameter
 
-    //Insert data in the map
+     //Insert data in the map
     for (KeyType i = 0; i < 100; ++i)
     {
         mymap->insert(std::pair<const KeyType, MappedType>(i, (MappedType)i));
@@ -528,94 +531,94 @@ TEST(Boost, InterprocessSharedMemoryWithMap)
 // 文件映射
 TEST(Boost, InterprocessMappedFiles)
 {
-//     //Define file names
-//     static const char *FileName = "/tmp/file.bin";
-//     static const std::size_t FileSize = 10000;
-// 
-//     /* Parent process executes this */
-//     // Create a file
-//     {
-//         file_mapping::remove(FileName);
-//         std::filebuf fbuf;
-//         fbuf.open(FileName, std::ios_base::in | std::ios_base::out
-//                   | std::ios_base::trunc | std::ios_base::binary);
-//         //Set the size
-//         fbuf.pubseekoff(FileSize - 1, std::ios_base::beg);
-//         fbuf.sputc(0);
-// 
-//         // fbuf析构会自动关闭文件
-//     }
-// 
-//     //Remove on exit
-//     struct file_remove
-//     {
-//         file_remove(const char *FileName)
-//             : FileName_(FileName)
-//         {
-//         }
-//         ~file_remove()
-//         {
-//             file_mapping::remove(FileName_);
-//         }
-//         const char *FileName_;
-//     } remover(FileName);
-// 
-//     // Create a file mapping
-//     file_mapping m_file(FileName, read_write);
-// 
-//     // Map the whole file with read-write permissions in this process
-//     mapped_region region(m_file, read_write);
-// 
-//     //Get the address of the mapped region
-//     void * addr = region.get_address();
-//     EXPECT_NE(nullptr, addr);
-//     std::size_t size = region.get_size();
-//     EXPECT_EQ(FileSize, size);
-// 
-//     //Write all the memory to 1
-//     std::memset(addr, 1, size);
-// 
-//     /* 其他进程 */
-//     //Child process executes this
-//     //Open the file mapping and map it as read-only
-//     {
-//         file_mapping m_file_child(FileName, read_only);
-// 
-//         mapped_region region_child(m_file_child, read_only);
-// 
-//         //Get the address of the mapped region
-//         void * addr_child = region_child.get_address();
-//         std::size_t size_child = region_child.get_size();
-// 
-//         //Check that memory was initialized to 1
-//         const char *mem = static_cast<char*>(addr_child);
-//         for (std::size_t i = 0; i < size_child; ++i)
-//         {
-//             //Error checking memory
-//             EXPECT_EQ(1, *mem);
-//             ++mem;
-//         }
-//     }
-// 
-//     /* 文件测试 */
-//     //Now test it reading the file
-//     {
-//         std::filebuf fbuf_file;
-//         fbuf_file.open(FileName, std::ios_base::in | std::ios_base::binary);
-// 
-//         //Read it to memory
-//         std::vector<char> vect(FileSize, 0);
-//         fbuf_file.sgetn(&vect[0], std::streamsize(vect.size()));
-// 
-//         //Check that memory was initialized to 1
-//         const char *mem_file = static_cast<char*>(&vect[0]);
-//         for (std::size_t i = 0; i < FileSize; ++i)
-//         {
-//             //Error checking memory
-//             EXPECT_EQ(1, *mem_file);
-//             ++mem_file;
-//         }
-//     }
+    //     //Define file names
+    //     static const char *FileName = "/tmp/file.bin";
+    //     static const std::size_t FileSize = 10000;
+    // 
+    //     /* Parent process executes this */
+    //     // Create a file
+    //     {
+    //         file_mapping::remove(FileName);
+    //         std::filebuf fbuf;
+    //         fbuf.open(FileName, std::ios_base::in | std::ios_base::out
+    //                   | std::ios_base::trunc | std::ios_base::binary);
+    //         //Set the size
+    //         fbuf.pubseekoff(FileSize - 1, std::ios_base::beg);
+    //         fbuf.sputc(0);
+    // 
+    //         // fbuf析构会自动关闭文件
+    //     }
+    // 
+    //     //Remove on exit
+    //     struct file_remove
+    //     {
+    //         file_remove(const char *FileName)
+    //             : FileName_(FileName)
+    //         {
+    //         }
+    //         ~file_remove()
+    //         {
+    //             file_mapping::remove(FileName_);
+    //         }
+    //         const char *FileName_;
+    //     } remover(FileName);
+    // 
+    //     // Create a file mapping
+    //     file_mapping m_file(FileName, read_write);
+    // 
+    //     // Map the whole file with read-write permissions in this process
+    //     mapped_region region(m_file, read_write);
+    // 
+    //     //Get the address of the mapped region
+    //     void * addr = region.get_address();
+    //     EXPECT_NE(nullptr, addr);
+    //     std::size_t size = region.get_size();
+    //     EXPECT_EQ(FileSize, size);
+    // 
+    //     //Write all the memory to 1
+    //     std::memset(addr, 1, size);
+    // 
+    //     /* 其他进程 */
+    //     //Child process executes this
+    //     //Open the file mapping and map it as read-only
+    //     {
+    //         file_mapping m_file_child(FileName, read_only);
+    // 
+    //         mapped_region region_child(m_file_child, read_only);
+    // 
+    //         //Get the address of the mapped region
+    //         void * addr_child = region_child.get_address();
+    //         std::size_t size_child = region_child.get_size();
+    // 
+    //         //Check that memory was initialized to 1
+    //         const char *mem = static_cast<char*>(addr_child);
+    //         for (std::size_t i = 0; i < size_child; ++i)
+    //         {
+    //             //Error checking memory
+    //             EXPECT_EQ(1, *mem);
+    //             ++mem;
+    //         }
+    //     }
+    // 
+    //     /* 文件测试 */
+    //     //Now test it reading the file
+    //     {
+    //         std::filebuf fbuf_file;
+    //         fbuf_file.open(FileName, std::ios_base::in | std::ios_base::binary);
+    // 
+    //         //Read it to memory
+    //         std::vector<char> vect(FileSize, 0);
+    //         fbuf_file.sgetn(&vect[0], std::streamsize(vect.size()));
+    // 
+    //         //Check that memory was initialized to 1
+    //         const char *mem_file = static_cast<char*>(&vect[0]);
+    //         for (std::size_t i = 0; i < FileSize; ++i)
+    //         {
+    //             //Error checking memory
+    //             EXPECT_EQ(1, *mem_file);
+    //             ++mem_file;
+    //         }
+    //     }
 }
 
 // 文件映射中放入一个Map
@@ -677,9 +680,9 @@ TEST(Boost, InterprocessMappedFilesWithMap)
     MyMap *mymap =
         mFile.construct<MyMap>("MyMap")      //object name
         (std::less<KeyType>() //first  ctor parameter
-        , alloc_inst);     //second ctor parameter
+         , alloc_inst);     //second ctor parameter
 
-    //Insert data in the map
+     //Insert data in the map
     for (KeyType i = 0; i < 100; ++i)
     {
         mymap->insert(std::pair<const KeyType, MappedType>(i, (MappedType)i));
@@ -810,7 +813,7 @@ TEST(Boost, InterprocessMappedFilesWithMuiltyIndex)
         boost::multi_index::sequenced<>,                                                                                // 索引3：序列化接口
         boost::multi_index::random_access<>,                                                                            // 索引4：随机访问接口
         boost::multi_index::ordered_non_unique < boost::multi_index::member <Person, uint32_t, &Person::age> >          // 索引5：排序后的年龄
-        > ,                                                                                                             // ...还可以增加更多的索引
+        >,                                                                                                             // ...还可以增加更多的索引
         MappedFileAllocator                // 分配器
     > person_multi;
 
@@ -1152,4 +1155,25 @@ TEST(Boost, lexical_cast)
     EXPECT_EQ(-123, boost::lexical_cast<int32_t>("-123"));
     EXPECT_EQ(-1, boost::lexical_cast<int32_t>("-123", 2));
     EXPECT_THROW(boost::lexical_cast<int32_t>("123abc"), boost::bad_lexical_cast);        // 抛出异常
+}
+
+void a()
+{
+    property_tree::ptree xmltree;
+    xmltree.add("router.list", "1");
+    xmltree.add("router.list", "2");
+    xmltree.put("put2", "put2_value");
+    xmltree.add("add.a", "add_value");
+    xmltree.add("add.a", "add_value");
+    xmltree.add("add", "add_value1");
+    xmltree.add("add", "add_value2");
+    xmltree.put_value("put_value");
+
+    auto setting = boost::property_tree::xml_writer_make_settings<std::string>(' ', 4);
+    write_xml(cout, xmltree, setting);
+}
+
+TEST(Boost, ptree)
+{
+    a();
 }

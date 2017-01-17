@@ -2,6 +2,9 @@
 #include <iostream>
 #include <typeinfo>
 #include <memory>
+#include <thread>
+#include <map>
+#include <array>
 
 #include <cxxabi.h>
 #ifndef __CYGWIN__
@@ -171,6 +174,7 @@ TEST(Cpp11, initializeInClass)
     EXPECT_EQ(3, c.b);
 }
 
+// 类型别名
 using Class1 = ClassName;
 
 class Base
@@ -434,4 +438,232 @@ TEST(Cpp11, forward)
     EXPECT_EQ("const Type&", funcWithRightValueWithForward(clRefA()));
     EXPECT_EQ("Type&&", funcWithRightValueWithForward(rRefA()));
     EXPECT_EQ("const Type&&", funcWithRightValueWithForward(crRefA()));
+}
+
+// 初始化表达式
+TEST(Cpp11, InitExpr)
+{
+    double doubleValue = 3.1415926;
+
+    // 编译器会告警，精度丢失
+    // warning: narrowing conversion of ‘doubleValue’ from ‘double’ to ‘int32_t {aka int}’ inside { } [-Wnarrowing]
+    int32_t int32Value = {doubleValue};
+    int32_t int32Value2{doubleValue};
+    int32_t int32Value3 = doubleValue;
+    int32_t int32Value4(doubleValue);
+
+    EXPECT_EQ(3, int32Value);
+    EXPECT_EQ(3, int32Value2);
+    EXPECT_EQ(3, int32Value3);
+    EXPECT_EQ(3, int32Value4);
+}
+
+// 常量表达式
+constexpr int GetConstExpr()
+{
+    return 888;
+}
+
+TEST(Cpp11, constexpr)
+{
+    constexpr int constValue = GetConstExpr();
+    EXPECT_EQ(GetConstExpr(), constValue);
+}
+
+// 类型别名声明
+using MyDouble = double;
+TEST(Cpp11, TypeDeclaration)
+{
+    MyDouble doubleValue = 1.3;
+    EXPECT_DOUBLE_EQ(1.3, doubleValue);
+}
+
+// 获得表达式的类型：decltype
+// 用于不计算表达式的值，在编译期获得表达式的类型
+double AbortFunc()
+{
+    throw "";
+    return 0.1;
+}
+
+TEST(Cpp11, decltype)
+{
+    // 此处不会调用函数AbortFunc()，所以也不会抛出异常
+    decltype(AbortFunc() + 123 * 123.0) constValue = 123.0;
+    EXPECT_DOUBLE_EQ(123.0, constValue);
+
+    const int32_t aConstValue = 1;
+
+    // 使用auto定义aAutoValue，由于是一个非常量，可以更改它的值
+    {
+        auto aAutoValue = aConstValue;
+        aAutoValue = 2;
+        EXPECT_EQ(2, aAutoValue);
+    }
+
+    // 使用decltype定义的，会保存const属性，所以不能修改值
+    {
+        decltype(aConstValue) aDecltypeValue = aConstValue;
+        // error: assignment of read-only variable ‘aDecltypeValue’
+        // aDecltypeValue = 2;
+        EXPECT_EQ(1, aDecltypeValue);
+    }
+
+    // decltype会保留引用，所以decltype内部是引用的话，必须要在初始化的时候赋值
+    {
+        const int32_t &aRefValue = aConstValue;
+        // error: ‘aRefValue2’ declared as reference but not initialized
+        // decltype(aRefValue) aRefValue2;
+        EXPECT_EQ(1, aRefValue);
+    }
+
+    // 一个重要的特性是，使用decltype，如果需要定义一个类型的引用，可以用括号把表达式包起来：
+    {
+        int32_t aValue = 1;
+        decltype((aValue)) aRefValue = aValue;
+
+        // 这是常规方式定义表达式类型的引用
+        // 那么问题来了，既然可以这样定义，那么上面的语法的作用是什么呢？
+        // 解答：括号括起来的，编译器将其当做表达式，表达式可以是左值，因此认为它是引用
+        decltype(aValue) &aRefValue2 = aValue;
+
+        // 修改引用会修改引用的对象aValue
+        aRefValue = 2;
+        EXPECT_EQ(2, aValue);
+        EXPECT_EQ(2, aRefValue2);
+    }
+}
+
+// 自定义class，实现begin和end接口，就可以使用返回for循环了
+class MyForClass
+{
+public:
+    int *begin()
+    {
+        return arr;
+    }
+
+    int *end()
+    {
+        return arr + sizeof(arr) / sizeof(arr[0]);
+    }
+private:
+    int arr[10];
+};
+
+// for循环遍历
+TEST(Cpp11, forLoop)
+{
+    string str = "12345";
+
+    // 这样是值的拷贝，修改c不会修改原始数据
+    for (auto c : str)
+    {
+        c = '1';
+
+        // 这里需要用一下c，否则会告警
+        static_cast<void>(c);
+    }
+    EXPECT_EQ("12345", str);
+
+    // 使用引用，则修改c会改变原始值
+    for (auto &c : str)
+    {
+        c = '1';
+    }
+
+    EXPECT_EQ("11111", str);
+
+    // 内置数组也可以使用for循环遍历
+    char strArr[] = "12345";
+    for (auto c : strArr)
+    {
+        // 数组的长度是6，这样遍历会执行6次，最后的结束符也会在这里出现
+        if (c != '\0')
+        {
+            c = '1';
+        }
+    }
+    EXPECT_TRUE(strcmp("12345", strArr) == 0);
+
+    for (auto &c : strArr)
+    {
+        // 数组的长度是6，这样遍历会执行6次，最后的结束符也会在这里出现
+        if (c != '\0')
+        {
+            c = '1';
+        }
+    }
+
+    EXPECT_TRUE(strcmp("11111", strArr) == 0);
+
+    // 多维数组的遍历
+    char a[10][10];
+    for (auto &row : a)
+    {
+        for (auto &col : row)
+        {
+            col = '1';
+        }
+    }
+
+    // 如果需要用到下一层的for循环，必须要使用引用，否则会将row转换为指针，而不是数组类型
+    // 于是无法调用begin和end函数
+    //     for (auto row : a)
+    //     {
+    //         // error: ‘begin’ was not declared in this scope
+    //         // error: ‘end’ was not declared in this scope
+    //         for (auto col : row)
+    //         {
+    //             col = '1';
+    //         }
+    //     }
+}
+
+// const迭代器
+// 为了搭配auto，简化使用，增加了cbegin和cend接口。
+TEST(Cpp11, ConstIterator)
+{
+    vector<uint32_t> vecNum{1,2,3,4,5,6};
+    for (auto cIt = vecNum.cbegin(); cIt != vecNum.cend(); ++cIt)
+    {
+        static_cast<void>(cIt);
+    }
+}
+
+// 内置数组指针迭代器
+TEST(Cpp11, ArrayIterator)
+{
+    char strArr[] = "12345";
+    for (auto it = begin(strArr); it != end(strArr); ++it)
+    {
+        if (*it != '\0')
+        {
+            *it = '1';
+        }
+    }
+
+    EXPECT_TRUE(strcmp("11111", strArr) == 0);
+
+    // 数组下标可以是负数
+    char *pStr = &strArr[2];
+    pStr[-2] = '0';
+    EXPECT_TRUE(strcmp("01111", strArr) == 0);
+
+    MyForClass myForClass;
+    int32_t count = 0;
+    for (auto it : myForClass)
+    {
+        static_cast<void>(it);
+        ++count;
+    }
+    EXPECT_EQ(10, count);
+}
+
+TEST(Cpp11, sizeof)
+{
+    // sizeof不会执行表达式，所以可以对无效的指针解引用获得其对象的大小
+    // 再深入一点，这玩意是编译器获得大小的，当然不会执行
+    double *pDouble = nullptr;
+    EXPECT_EQ(sizeof(double), sizeof(*pDouble));
 }

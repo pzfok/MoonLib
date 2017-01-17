@@ -11,16 +11,16 @@ TEST(CppMath, CppMathIsIntTest)
 
     // 向下取整
     EXPECT_TRUE(CppMath::IsInt(1.0, 0.0005, n));
-    EXPECT_EQ(n , 1);
+    EXPECT_EQ(n, 1);
 
     EXPECT_TRUE(CppMath::IsInt(-1.0, 0.0005, n));
-    EXPECT_EQ(n , -1);
+    EXPECT_EQ(n, -1);
 
     EXPECT_TRUE(CppMath::IsInt(1.0004, 0.0005, n));
-    EXPECT_EQ(n , 1);
+    EXPECT_EQ(n, 1);
 
     EXPECT_TRUE(CppMath::IsInt(-1.0004, 0.0005, n));
-    EXPECT_EQ(n , -1);
+    EXPECT_EQ(n, -1);
 
     // 如果刚好为整，不OK，这里Ubuntu和macOS不一致，之后再看看
     //EXPECT_FALSE(CppMath::IsInt(1.0005, 0.0005, n));
@@ -32,16 +32,16 @@ TEST(CppMath, CppMathIsIntTest)
     // 向上取整
     // 如果刚好为整，也OK
     EXPECT_TRUE(CppMath::IsInt(0.9995, 0.0005, n));
-    EXPECT_EQ(n , 1);
+    EXPECT_EQ(n, 1);
 
     EXPECT_TRUE(CppMath::IsInt(-0.9995, 0.0005, n));
-    EXPECT_EQ(n , -1);
+    EXPECT_EQ(n, -1);
 
     EXPECT_TRUE(CppMath::IsInt(0.9996, 0.0005, n));
-    EXPECT_EQ(n , 1);
+    EXPECT_EQ(n, 1);
 
     EXPECT_TRUE(CppMath::IsInt(-0.9996, 0.0005, n));
-    EXPECT_EQ(n , -1);
+    EXPECT_EQ(n, -1);
 
     EXPECT_FALSE(CppMath::IsInt(0.9994, 0.0005, n));
     EXPECT_FALSE(CppMath::IsInt(-0.9994, 0.0005, n));
@@ -116,7 +116,7 @@ TEST(CppMath, CppMathIsIntegerSquareTest)
     EXPECT_FALSE(CppMath::IsIntegerSquare(7));
     EXPECT_FALSE(CppMath::IsIntegerSquare(8));
 
-    for(uint32_t i = 0; i < 100; ++i)
+    for (uint32_t i = 0; i < 100; ++i)
     {
         EXPECT_TRUE(CppMath::IsIntegerSquare(i * i));
     }
@@ -128,28 +128,28 @@ TEST(CppMath, CppMathGetDiffPrimerFactorNumTest)
     set<uint32_t> factorsCompare;
 
     factors = CppMath::GetDiffPrimerFactorNum(1);
-    EXPECT_EQ(true, factors.empty());
+    EXPECT_TRUE(factors.empty());
 
     factors = CppMath::GetDiffPrimerFactorNum(7);
-    EXPECT_EQ(true, factors.empty());
+    EXPECT_EQ(static_cast<size_t>(1), factors.size());
 
     factors = CppMath::GetDiffPrimerFactorNum(14);
     factorsCompare.clear();
     factorsCompare.insert(2);
     factorsCompare.insert(7);
-    EXPECT_EQ(factors , factorsCompare);
+    EXPECT_EQ(factors, factorsCompare);
 
     factors = CppMath::GetDiffPrimerFactorNum(646);
     factorsCompare.clear();
     factorsCompare.insert(2);
     factorsCompare.insert(17);
     factorsCompare.insert(19);
-    EXPECT_EQ(factors , factorsCompare);
+    EXPECT_EQ(factors, factorsCompare);
 
     factors = CppMath::GetDiffPrimerFactorNum(644);
     factorsCompare.clear();
     factorsCompare.insert(2);
     factorsCompare.insert(7);
     factorsCompare.insert(23);
-    EXPECT_EQ(factors , factorsCompare);
+    EXPECT_EQ(factors, factorsCompare);
 }
