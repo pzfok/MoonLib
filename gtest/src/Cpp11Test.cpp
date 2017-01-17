@@ -4,7 +4,7 @@
 #include <memory>
 #include <thread>
 #include <map>
-#include <array>
+#include <initializer_list>
 
 #include <cxxabi.h>
 #ifndef __CYGWIN__
@@ -634,6 +634,7 @@ TEST(Cpp11, ConstIterator)
 // 内置数组指针迭代器
 TEST(Cpp11, ArrayIterator)
 {
+    // begin和end函数可以用于内置数组
     char strArr[] = "12345";
     for (auto it = begin(strArr); it != end(strArr); ++it)
     {
@@ -666,4 +667,52 @@ TEST(Cpp11, sizeof)
     // 再深入一点，这玩意是编译器获得大小的，当然不会执行
     double *pDouble = nullptr;
     EXPECT_EQ(sizeof(double), sizeof(*pDouble));
+}
+
+int32_t InitializerListFunc(initializer_list<int32_t> nums)
+{
+    int32_t sum = 0;
+    for (const auto &num : nums)
+    {
+        sum += num;
+    }
+
+    return sum;
+}
+
+TEST(Cpp11, InitializerList)
+{
+    auto sum = InitializerListFunc({1,2,3,4,5,6});
+    EXPECT_EQ(21, sum);
+}
+
+TEST(Cpp11, lambda)
+{
+    int32_t a = 1;
+
+    // mutable可以让捕获的变量可以修改，但是值捕获并不会影响到原始变量
+    auto f1 = [a]()mutable
+    {
+        a++;
+    };
+
+    f1();
+    EXPECT_EQ(1, a);
+
+    // 对于引用捕获，使用mutable和不使用没什么区别
+    auto f2 = [&a]()
+    {
+        a++;
+    };
+
+    f2();
+    EXPECT_EQ(2, a);
+
+    auto f3 = [&a]()mutable
+    {
+        a++;
+    };
+
+    f3();
+    EXPECT_EQ(3, a);
 }

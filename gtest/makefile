@@ -95,8 +95,8 @@ CXXFLAGS += -O2
 CXXFLAGS += -Wall
 CXXFLAGS += -Wextra
 CXXFLAGS += -fPIC
-CXXFLAGS += -std=gnu++11
-#CXXFLAGS += -std=c++11
+#CXXFLAGS += -std=gnu++11
+CXXFLAGS += -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += $(INC_DIR)
 CXXFLAGS += -DUSE_CPP_LOG_MACRO

@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <forward_list>
+#include <sstream>
 #include <ext/slist>
 
 #include "gtest/gtest.h"
@@ -711,6 +712,7 @@ TEST(CppSTL, unordered_set)
     EXPECT_EQ(COUNT * 2, UnorderedSetTest::deconstructCount);
 }
 
+// stack在底层依赖于deque
 TEST(CppSTL, stack)
 {
     stack<int32_t> p;
@@ -733,6 +735,7 @@ TEST(CppSTL, stack)
     cout << endl;
 }
 
+// queue在底层依赖于deque实现
 TEST(CppSTL, queue)
 {
     queue<int32_t> p;
@@ -755,6 +758,7 @@ TEST(CppSTL, queue)
     cout << endl;
 }
 
+// priority_queue在底层依赖于vector实现
 TEST(CppSTL, priority_queue)
 {
     priority_queue<int32_t> p;
@@ -777,6 +781,7 @@ TEST(CppSTL, priority_queue)
     cout << endl;
 }
 
+// 元素交换
 TEST(CppSTL, iter_swap)
 {
     vector<int> v;
@@ -798,6 +803,7 @@ TEST(CppSTL, iter_swap)
     cout << endl;
 }
 
+// 元素替换和复制
 TEST(CppSTL, replace_copy)
 {
     vector<int> v;
@@ -808,6 +814,7 @@ TEST(CppSTL, replace_copy)
 
     vector<int> v2(v.size());
 
+    // 将v中的5换成6，然后复制到v2中
     replace_copy(v.begin(), v.end(), v2.begin(), 5, 6);
 
     copy(v.begin(), v.end(), ostream_iterator<int32_t>(cout, " "));
@@ -931,7 +938,141 @@ TEST(CppSTL, string)
 {
     // 数值转换
     EXPECT_EQ("123", to_string(123));
+    EXPECT_EQ(static_cast<uint64_t>(123), stoul("123"));
+    EXPECT_DOUBLE_EQ(1.2, stod("1.2"));
+    EXPECT_EQ(static_cast<uint64_t>(31), stod("0x1F"));     // stod可以识别16进制
+    EXPECT_NE(static_cast<uint64_t>(31), stoul("0x1F"));    // stoul不可以识别16进制！！！转换的结果是0
 
-    string numStr = "123";
-    EXPECT_EQ(static_cast<uint64_t>(123), stoul(numStr));
+    // 如果转换失败则抛出异常
+    EXPECT_THROW(stod("asd"), invalid_argument);
+}
+
+TEST(CppSTL, equal)
+{
+    vector<int32_t> a{1,2,3,4,5,6,7,8,9,10};
+    vector<int32_t> b{1,2,3};
+    EXPECT_TRUE(equal(b.begin(), b.end(), a.begin()));
+
+    // 必须保证第二个容器的大小>=第一个容器的大小，否则错误未定义
+    // equal(a.begin(), a.end(), b.begin());   // 这样是不行的，因为b的大小小于a的大小
+}
+
+// 插入迭代器
+TEST(CppSTL, back_inserter)
+{
+    vector<int32_t> a;
+
+    // 构造一个后向插入迭代器
+    auto it = back_inserter(a);
+
+    // 当通过此迭代器赋值时，赋值运算符会调用push_back将值添加到容器中
+    *it = 1;
+    *it = 2;
+
+    EXPECT_EQ(static_cast<vector<int32_t>::size_type>(2), a.size());
+    EXPECT_EQ(1, a[0]);
+    EXPECT_EQ(2, a[1]);
+
+    // 更多用法
+    // 和算法搭配使用
+    a.clear();
+
+    // 通过fill_n给a添加10个0
+    fill_n(back_inserter(a), 10, 0);
+    EXPECT_EQ(static_cast<vector<int32_t>::size_type>(10), a.size());
+    EXPECT_EQ(0, a[0]);
+    EXPECT_EQ(0, a[1]);
+
+    // 拷贝a的所有元素到b
+    decltype(a) b;
+    copy(a.begin(), a.end(), back_inserter(b));
+    EXPECT_EQ(static_cast<vector<int32_t>::size_type>(10), b.size());
+    EXPECT_EQ(0, b[0]);
+    EXPECT_EQ(0, b[1]);
+}
+
+TEST(CppSTL, for_each)
+{
+    vector<int32_t> a;
+    fill_n(back_inserter(a), 10, 0);
+    for_each(a.cbegin(), a.cend(), [](decltype(*a.cbegin()) &num)
+    {
+        cout << num << " ";
+    });
+
+    cout << endl;
+}
+
+TEST(CppSTL, unique)
+{
+    vector<int32_t> v;
+    v.push_back(2);
+    v.push_back(2);
+    v.push_back(3);
+    v.push_back(5);
+
+    auto oldSize = v.size();
+
+    // 注意这里unique返回值为剔除重复后最后一个元素的下一个迭代器，实际容器的size没有变化
+    auto result = unique(v.begin(), v.end());
+    for_each(v.begin(), result, [](decltype(*v.cbegin()) &num)
+    {
+        cout << num << " ";
+    });
+    cout << endl;
+
+    // 实际容器的size没有变化
+    EXPECT_EQ(oldSize, v.size());
+
+    // 需要把后面多余的元素都删除掉
+    v.erase(result, v.end());
+
+    // 这样实际的元素才会发生变化
+    EXPECT_EQ(oldSize - 1, v.size());
+}
+
+// 流迭代器
+TEST(CppSTL, StreamIterator)
+{
+    // 构造一个输入流，这里是用来模拟cin
+    stringstream ss;
+
+    // 给模拟流里添加一些数据，末尾的空格和endl不影响结果，如果没有它们，程序也能正常运行
+    ss << "1 2 3 4 5     " << endl;
+    int32_t sum = 0;
+
+    istream_iterator<int32_t> endIt;    // 默认参数为end迭代器
+    for (istream_iterator<int32_t> sIt(ss); sIt != endIt; ++sIt)
+    {
+        cout << *sIt << " ";
+        sum += *sIt;
+    }
+    cout << endl;
+    EXPECT_EQ(15, sum);
+
+    // 从迭代器读取数据并且构造vector
+    ss = stringstream();
+    ss << "1 2 3 4 5";
+    istream_iterator<int32_t> sIt(ss);
+    vector<int32_t> aVec(sIt, endIt);
+    sum = accumulate(aVec.begin(), aVec.end(), 0);
+    EXPECT_EQ(5, static_cast<int32_t>(aVec.size()));
+    EXPECT_EQ(15, sum);
+
+    // 直接对流迭代器调用算法
+    ss = stringstream();
+    ss << "1 2 3 4 5";
+    sIt = istream_iterator<int32_t>(ss);
+    sum = accumulate(sIt, endIt, 0);
+    EXPECT_EQ(15, sum);
+
+    // 使用输出流迭代器
+    ss = stringstream();
+    ostream_iterator<int> oIt(ss,",");
+    for (const auto &num : aVec)
+    {
+        *oIt = num;
+    }
+
+    EXPECT_EQ("1,2,3,4,5,", ss.str());
 }
