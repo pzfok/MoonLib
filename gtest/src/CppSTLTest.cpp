@@ -1068,11 +1068,38 @@ TEST(CppSTL, StreamIterator)
 
     // 使用输出流迭代器
     ss = stringstream();
-    ostream_iterator<int> oIt(ss,",");
+    ostream_iterator<int> oIt(ss, ",");     // 第二个参数是在每个输出后追加输出的字符串
     for (const auto &num : aVec)
     {
-        *oIt = num;
+        *oIt++ = num;
+
+        // 也可以这样对迭代器直接赋值，但是不推荐这样做，因为如果改成其他的迭代器就很不方便了
+        // oIt = num;
     }
 
     EXPECT_EQ("1,2,3,4,5,", ss.str());
+}
+
+// 反向迭代器
+TEST(CppSTL, ReverseIterator)
+{
+    string a = "123456789";
+    auto it = find(a.begin(), a.end(), '5');
+    auto rit = find(a.rbegin(), a.rend(), '5');
+    EXPECT_EQ('5', *it);
+    EXPECT_EQ('5', *rit);
+
+    // 反向迭代器的base()函数可以得到对应的正向迭代器，但是不是指向同一个元素，会指向正向迭代器后一个元素
+    EXPECT_EQ('6', *rit.base());
+}
+
+// 随机访问迭代器
+TEST(CppSTL, RandomAccessIterator)
+{
+    string a = "123456789";
+    auto it = find(a.begin(), a.end(), '5');
+
+    // 支持iter[n]操作
+    EXPECT_EQ('6', it[1]);
+    EXPECT_EQ('4', it[-1]);
 }
