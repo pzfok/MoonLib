@@ -66,7 +66,7 @@ CURR_SOURCES =$(foreach n,$(SUBDIR), $(wildcard $(n)/*.cpp))
 CURR_SOURCES +=
 
 #生成对应的.o文件
-CXX_OBJECTS = $(patsubst %.cpp, %.o, ${CURR_SOURCES})
+CXX_OBJECTS = $(patsubst %.cpp, obj/%.o, ${CURR_SOURCES})
 
 #添加自定义.o，这些.o不由clean删除，没有则无需填写
 EXT_OBJECTS +=
@@ -85,8 +85,9 @@ static: $(TARGETA)
 $(TARGETA):$(CXX_OBJECTS)
 	ar crvs $@ $^
  
-%.o:%.cpp
-	${CXX} -c $(CFLAGS) -MT $@ -MF $(patsubst %.cpp, %.d,  $<) -o $@ $<
+obj/%.o:%.cpp
+	@mkdir -p `dirname $@`
+	${CXX} -c $(CFLAGS) -MF $(patsubst %.cpp, obj/%.d, $<) -o $@ $<
  
 -include ${DEP_FILES}
 

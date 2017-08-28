@@ -1,4 +1,3 @@
-#ifndef __CYGWIN__
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/epoll.h>
@@ -1038,5 +1037,3 @@ TEST(CppNet, DISABLED_PressCallLester)
                                           CLIENT_COUNT_PER_THREAD, CLIENT_EPOLL_SIZE, &cppLog);
     presscallClient.Run();
 }
-
-#endif

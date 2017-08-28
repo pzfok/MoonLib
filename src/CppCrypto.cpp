@@ -10,12 +10,12 @@
 
 using namespace std;
 
-string CppCrypto::Md5(const string &data)
+string CppCrypto::Md5(const string &data, bool upCase)
 {
     unsigned char md[MD5_DIGEST_LENGTH];
 
     MD5((unsigned char *)data.c_str(), data.size(), (unsigned char*)&md);
-    return CppString::Hex2Str((const char *)md, MD5_DIGEST_LENGTH);
+    return CppString::Hex2Str(string((const char *)md, MD5_DIGEST_LENGTH), upCase);
 }
 
 string CppCrypto::Md5File(const string &path)throw(CppException)

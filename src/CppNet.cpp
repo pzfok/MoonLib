@@ -1,11 +1,9 @@
 #include "CppNet.h"
 
-#ifndef __CYGWIN__
 #include <sys/epoll.h>
 #include <netdb.h>      // hostent
 #include <fcntl.h>
 #include <netinet/tcp.h>
-#endif
 #include <arpa/inet.h>
 
 #include <list>
@@ -45,7 +43,6 @@ uint32_t CppNet::StrToNetIp(const string &ipStr)
 //     }
 // }
 
-#ifndef __CYGWIN__
 CppEpollManager::CppEpollManager(uint32_t size) throw(CppException)
 {
     mEpollFd = epoll_create(size);
@@ -444,5 +441,3 @@ int32_t MultiThreadClientBase::Run()
 
     return 0;
 }
-
-#endif

@@ -26,12 +26,19 @@ public:
         }
     }
 
-    static void MysqlQuery(CMysql &mysql, const std::string &sqlCmd, CppLog *pCppLog = NULL) throw(CMysqlException)
+    static void MysqlQuery(CMysql &mysql, const std::string &sqlCmd, CppLog *pCppLog = NULL) throw(CppException)
     {
         Log(pCppLog, CppLog::DEBUG, "%s", sqlCmd.c_str());
 
-        mysql.FreeResult();
-        mysql.Query(sqlCmd.c_str());
+        try
+        {
+            mysql.FreeResult();
+            mysql.Query(sqlCmd.c_str());
+        }
+        catch (const CMysqlException &e)
+        {
+            THROW("CMysql执行错误[%s].", e.GetErrMsg());
+        }
     }
 
     static void StoreResultToMap(CMysql &mysql, std::map<std::string, std::vector<std::string> > &data);

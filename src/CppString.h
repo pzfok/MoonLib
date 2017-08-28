@@ -42,6 +42,14 @@ public:
     template <class T>
     static T FromString(const string &value);
 
+    /** 将double转换为指定小数位数的str，相当于python的"%.*f"
+     * @param 	uint32_t precision
+     * @param 	double value
+     * @retval 	const string
+     * @author 	moon
+     */
+    static const string ToPrecisionDouble(uint32_t precision, double value);
+
     //************************************
     // Describe:  字符串分割
     // Parameter: string str                要分割的字符串
@@ -234,7 +242,7 @@ template <class T>
 const string CppString::ToString(const T &value, int32_t divcision)
 {
     stringstream ss;
-    if(divcision >= 0)
+    if (divcision >= 0)
     {
         ss.setf(ios::fixed);
         ss.precision(divcision);
@@ -248,7 +256,7 @@ const string CppString::ToString(const T &value, int32_t divcision)
 template <class T>
 T CppString::FromString(const string &value)
 {
-    if(value.length() == 0)
+    if (value.length() == 0)
     {
         return  0;
     }

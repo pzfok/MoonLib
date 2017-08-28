@@ -32,6 +32,7 @@ INC_DIR += -I${ROOT_DIR}/ext/include/opencv_modules/imgcodecs/include
 INC_DIR += -I${ROOT_DIR}/ext/include/opencv_modules/videoio/include
 INC_DIR += -I${ROOT_DIR}/ext/include/opencv_modules/highgui/include
 INC_DIR += -I${ROOT_DIR}/ext/include/opencv_modules/ml/include
+INC_DIR += -I${ROOT_DIR}/ext/include/protobuf
 
 #静态库文件路径
 STATIC_LIBS_DIR = ${ROOT_DIR}/ext/libs
@@ -51,15 +52,13 @@ STATIC_LIBS += ${STATIC_LIBS_DIR}/libprotobuf.a
 #STATIC_LIBS += ${STATIC_LIBS_DIR}/libssl.a
 STATIC_LIBS += $(STATIC_LIBS_DIR)/libmysqlclient.a
 STATIC_LIBS += $(STATIC_LIBS_DIR)/libjsoncpp.a
-STATIC_LIBS += $(STATIC_LIBS_DIR)/libmysqlpp.a
-ifdef CYGWIN
-STATIC_LIBS += $(STATIC_LIBS_DIR)/libiconv.a
-else
+#STATIC_LIBS += $(STATIC_LIBS_DIR)/libmysqlpp.a
+#STATIC_LIBS += $(STATIC_LIBS_DIR)/libiconv.a
 STATIC_LIBS += $(STATIC_LIBS_DIR)/libzookeeper_mt.a
 #STATIC_LIBS += /home/godmoon/study/project/work/narutomb/server/ext/zookeeper_mt/libzookeeper_ns_mt.a
 STATIC_LIBS += ${STATIC_LIBS_DIR}/libsnappy.a
 STATIC_LIBS += ${STATIC_LIBS_DIR}/libleveldb.a 
-endif
+STATIC_LIBS += ${STATIC_LIBS_DIR}/libcolib.a 
 
 #动态库文件路径
 DYNAMIC_LIBS_DIR = ${ROOT_DIR}/ext/libs
@@ -70,16 +69,13 @@ LDFLAGS += -fPIC
 #LDFLAGS += -export-dynamic
 LDFLAGS += -lrtmp
 LDFLAGS += ${STATIC_LIBS}
-ifdef CYGWIN
-else
-LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_calib3d.so
-LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_imgproc.so
-LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_highgui.so
-LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_imgcodecs.so
-LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_core.so
+#LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_calib3d.so
+#LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_imgproc.so
+#LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_highgui.so
+#LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_imgcodecs.so
+#LDFLAGS += ${DYNAMIC_LIBS_DIR}/opencv/libopencv_core.so
 #LDFLAGS += -L/usr/lib/mysql/ -L/usr/lib64/mysql/ -lmysqlclient     #动态库
 #LDFLAGS += -L${STATIC_LIBS_DIR} -Bstatic -lmysqlclient				#静态库
-endif
 LDFLAGS += -lz
 LDFLAGS += -ldl
 LDFLAGS += -lpthread
@@ -95,7 +91,6 @@ CXXFLAGS += -O2
 CXXFLAGS += -Wall
 CXXFLAGS += -Wextra
 CXXFLAGS += -fPIC
-#CXXFLAGS += -std=gnu++11
 CXXFLAGS += -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += $(INC_DIR)
@@ -134,10 +129,10 @@ $(TARGET): ${CXX_OBJECTS} ${EXT_OBJECTS} ${STATIC_LIBS}
 
 #Protocol Buffer相关文件处理
 %.pb.h: %.proto
-	protoc $^ --cpp_out=.
+	${ROOT_DIR}/ext/bin/protoc $^ --cpp_out=.
 
 %.pb.cc: %.proto
-	protoc $^ --cpp_out=.
+	${ROOT_DIR}/ext/bin/protoc $^ --cpp_out=.
 
 %.d: %.cc
 	@set -e;${CXX} -MM $< $(CXXFLAGS) -MF $(patsubst %.cc, %.d, $<)

@@ -716,3 +716,209 @@ TEST(Cpp11, lambda)
     f3();
     EXPECT_EQ(3, a);
 }
+
+// 40-80-96-48
+int status_40_to_80()
+{
+    printf("%s\n", __FUNCTION__);
+    return 0;
+}
+
+int status_80_to_40()
+{
+    printf("%s\n", __FUNCTION__);
+    return 0;
+}
+
+int status_80_to_96()
+{
+    printf("%s\n", __FUNCTION__);
+    return 0;
+}
+
+int status_96_to_80()
+{
+    printf("%s\n", __FUNCTION__);
+    return 0;
+}
+
+int status_96_to_48()
+{
+    printf("%s\n", __FUNCTION__);
+    return 0;
+}
+
+int status_48_to_96()
+{
+    printf("%s\n", __FUNCTION__);
+    return 0;
+}
+
+static int status_list[4] = {40,80,96,48};    // 状态顺序关系
+
+// 寻找状态的索引
+int find_status(int status)
+{
+    for (int i = 0; i < sizeof(status_list) / sizeof(status_list[0]); ++i)
+    {
+        if (status_list[i] == status)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// 用于状态更换
+int status_change(int curr_status, int dest_status)
+{
+    if (curr_status == 40 && dest_status == 80)
+    {
+        return status_40_to_80();
+    }
+
+    if (curr_status == 80 && dest_status == 40)
+    {
+        return status_80_to_40();
+    }
+
+    if (curr_status == 80 && dest_status == 96)
+    {
+        return status_80_to_96();
+    }
+
+    if (curr_status == 96 && dest_status == 80)
+    {
+        return status_96_to_80();
+    }
+
+    if (curr_status == 96 && dest_status == 48)
+    {
+        return status_96_to_48();
+    }
+
+    if (curr_status == 48 && dest_status == 96)
+    {
+        return status_48_to_96();
+    }
+
+    return -1;
+}
+
+int fun(int curr_status, int dest_status)
+{
+    printf("\n新转换:%d->%d\n", curr_status, dest_status);
+    int ori_status = curr_status;   // 原始状态备份
+    int ret;
+
+    while (curr_status != dest_status)
+    {
+        int curr_index = find_status(curr_status);      // 当前状态的索引
+        int dest_index = find_status(dest_status);      // 目标状态的索引
+        if (curr_index == -1 || dest_status == -1)
+        {
+            return -1;
+        }
+
+        int next_status;        // 下一个状态
+        if (curr_index < dest_index)
+        {
+            // 如果当前状态的索引小于目标状态的索引，那么状态需要往后走，下个状态为当前状态的索引+1的状态
+            next_status = status_list[curr_index + 1];
+        }
+        else if (curr_index > dest_index)
+        {
+            // 同上，只是反过来，前面保证了curr_index>=1
+            next_status = status_list[curr_index - 1];
+        }
+        else
+        {
+            return 0;
+        }
+
+        ret = status_change(curr_status, next_status);
+
+        // 失败了，返回原始状态，这里假设原始状态是一定可以返回去的
+        if (ret != 0)
+        {
+            if (dest_status != ori_status)
+            {
+                dest_status = ori_status;
+            }
+            else
+            {
+                // 这里表示回退的过程失败，应该处理一下，我这里直接返回-1了
+                return -1;
+            }
+        }
+        else
+        {
+            curr_status = next_status;
+        }
+    }
+
+    return 0;
+}
+
+// 40-80-96-48
+TEST(Cpp11, Testtest)
+{
+    fun(40, 80);
+    fun(40, 96);
+    fun(40, 48);
+    fun(80, 96);
+    fun(80, 48);
+    fun(96, 48);
+    fun(48, 96);
+    fun(48, 80);
+    fun(48, 40);
+    fun(96, 80);
+    fun(96, 40);
+    fun(80, 40);
+
+// 输出结果
+// 新转换:40->80
+// status_40_to_80
+// 
+// 新转换:40->96
+// status_40_to_80
+// status_80_to_96
+// 
+// 新转换:40->48
+// status_40_to_80
+// status_80_to_96
+// status_96_to_48
+// 
+// 新转换:80->96
+// status_80_to_96
+// 
+// 新转换:80->48
+// status_80_to_96
+// status_96_to_48
+// 
+// 新转换:96->48
+// status_96_to_48
+// 
+// 新转换:48->96
+// status_48_to_96
+// 
+// 新转换:48->80
+// status_48_to_96
+// status_96_to_80
+// 
+// 新转换:48->40
+// status_48_to_96
+// status_96_to_80
+// status_80_to_40
+// 
+// 新转换:96->80
+// status_96_to_80
+// 
+// 新转换:96->40
+// status_96_to_80
+// status_80_to_40
+// 
+// 新转换:80->40
+// status_80_to_40
+}

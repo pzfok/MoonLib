@@ -117,9 +117,10 @@ void CppChartDir::MakeSplineLine(const string &path,
     }
 
     c.makeChart(path.c_str());
-    
+
     // 使用ImageMagic去除注册信息
-    CppSystem::ExcuteCommand(CppString::GetArgs("convert '%s' -gravity South -chop 0x9 '%s'", path.c_str(), path.c_str()));
+    int32_t ret;
+    CppSystem::ExcuteCommand(CppString::GetArgs("convert '%s' -gravity South -chop 0x9 '%s'", path.c_str(), path.c_str()), ret);
 }
 
 void CppChartDir::MakeMultiAxes(const string &path, const string &title, const vector<string> &xLabels, const vector<vector<double> > &datas, const vector<string> &dataNames, const uint32_t labelStep, uint32_t width, uint32_t height)
@@ -173,5 +174,6 @@ void CppChartDir::MakeMultiAxes(const string &path, const string &title, const v
     c.makeChart(path.c_str());
 
     // 使用ImageMagic去除注册信息
-    CppSystem::ExcuteCommand(CppString::GetArgs("convert '%s' -gravity South -chop 0x9 '%s'", path.c_str(), path.c_str()));
+    int32_t ret;
+    CppSystem::ExcuteCommand(CppString::GetArgs("convert '%s' -gravity South -chop 0x9 '%s'", path.c_str(), path.c_str()), ret);
 }

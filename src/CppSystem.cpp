@@ -4,7 +4,7 @@
 
 using namespace std;
 
-string CppSystem::ExcuteCommand(const string &cmd)
+string CppSystem::ExcuteCommand(const string &cmd, int32_t &ret)
 {
     FILE *fp = popen(cmd.c_str(), "r");
     if (fp == NULL)
@@ -27,6 +27,8 @@ string CppSystem::ExcuteCommand(const string &cmd)
         result.append(buf, bufSize);
     }
 
-    fclose(fp);
+    ret = pclose(fp);
+    ret = WEXITSTATUS(ret);
+
     return result;
 }

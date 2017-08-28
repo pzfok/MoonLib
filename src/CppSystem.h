@@ -18,7 +18,7 @@ public:
      * @retval  string
      * @author  moontan
      */
-    static string ExcuteCommand(const string &cmd);
+    static string ExcuteCommand(const string &cmd, int32_t &ret);
 };
 
 #endif

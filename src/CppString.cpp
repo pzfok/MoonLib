@@ -45,6 +45,12 @@ string CppString::ReplaceStr(string str, const string &oldValue, const string &n
     return str;
 }
 
+const string CppString::ToPrecisionDouble(uint32_t precision, double value)
+{
+    string patten = "%." + to_string(precision) + "f";
+    return CppString::GetArgs(patten.c_str(), value);
+}
+
 void CppString::SplitStr(string str, const string &splitStr, vector<string> &result, bool removeEmptyElm, size_t maxCount)
 {
     SplitStr(str, vector<string>(1, splitStr), result, removeEmptyElm, maxCount);
