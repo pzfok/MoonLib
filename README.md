@@ -10,7 +10,7 @@
 * CppEnv：应用程序环境相关信息的获取
 * CppFile：文件的操作
 * CppFraction：实现分数的计算（做OJ题用的）
-* CppJson：jsoncpp库的封装，用于处理json
+* CppJson：rapidjson库的封装，用于处理json
 * CppLog：日志库（由于每一个日志都写磁盘，性能较差，但可优化，偶尔用用可以）
 * CppLRU：一个固定容量LRU队列的实现
 * CppMath：一些数学相关的操作（做OJ题用的）
