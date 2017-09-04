@@ -49,6 +49,7 @@ public:
     // Author:    moon
     //************************************
     static string GetTimeStr(time_t timet = time(NULL), const string &timeFormat = "%Y-%m-%d %H:%M:%S");
+    static string GetTimeStr(tm tmS, const string &timeFormat = "%Y-%m-%d %H:%M:%S");
 
     /** 获得指定time_t对应的日期：[1,31]
      *
@@ -106,13 +107,23 @@ public:
     */
     static uint32_t GetCurrDayOfWeek(time_t timet = time(NULL));
 
-    //************************************
-    // Describe:  从特定格式的字符串中获得时间,包含本地时区信息
-    // Parameter: const string & timeStr    必须是"2013-05-06 13:50:00"的格式
-    // Returns:   time_t
-    // Author:    moon
-    //************************************
-    static time_t GetTimeFromStr(const string &timeStr);
+    /** 从特定格式的字符串中获得时间,包含本地时区信息
+     *
+     * @param   const string & timeStr
+     * @param   const string & timeFormat
+     * @retval  time_t
+     * @author  moon
+     */
+    static time_t GetTimeFromStr(const string &timeStr, const string &timeFormat = "%Y-%m-%d %H:%M:%S");
+
+    /** 将任意字符串转换为时间结构tm
+     *
+     * @param   const string & timeStr
+     * @param   const string & timeFormat
+     * @retval  tm
+     * @author  moon
+     */
+    static tm GetTmFromStr(const string &timeStr, const string &timeFormat = "%Y-%m-%d %H:%M:%S");
 
     //************************************
     // Describe:  判断2个时间是否是同一天,也可以测试给定的时间是否是今天,包含本地时区信息

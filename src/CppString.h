@@ -43,10 +43,10 @@ public:
     static T FromString(const string &value);
 
     /** 将double转换为指定小数位数的str，相当于python的"%.*f"
-     * @param 	uint32_t precision
-     * @param 	double value
-     * @retval 	const string
-     * @author 	moon
+     * @param   uint32_t precision
+     * @param   double value
+     * @retval  const string
+     * @author  moon
      */
     static const string ToPrecisionDouble(uint32_t precision, double value);
 

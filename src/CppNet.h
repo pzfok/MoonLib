@@ -250,9 +250,9 @@ protected:
 
     /** 初始化连接
      *
-     * @param 	int fd
-     * @retval 	void
-     * @author 	moontan
+     * @param   int fd
+     * @retval  void
+     * @author  moontan
      */
     virtual void InitConnection(int fd)
     {
@@ -261,26 +261,26 @@ protected:
 
     /** 获得要发送的数据
     *
-    * @param 	int fd
-    * @retval 	const string
-    * @author 	moontan
+    * @param    int fd
+    * @retval   const string
+    * @author   moontan
     */
     virtual const string GetSendData(uint32_t threadId, int fd) = 0;
 
     /** 创建一个客户端数据，不需要填充数值
     *
-    * @retval 	std::shared_ptr<PressCallClientDataBase>
-    * @author 	moontan
+    * @retval   std::shared_ptr<PressCallClientDataBase>
+    * @author   moontan
     */
     virtual shared_ptr<PressCallClientDataBase> MakeNewClientData() = 0;
 
     /** 检查结果并做统计工作
      *
-     * @param 	uint32_t threadId
-     * @param 	int fd
-     * @param 	const string & bufStr
-     * @retval 	bool                        成功返回true，失败返回false
-     * @author 	moontan
+     * @param   uint32_t threadId
+     * @param   int fd
+     * @param   const string & bufStr
+     * @retval  bool                        成功返回true，失败返回false
+     * @author  moontan
      */
     virtual bool CheckResponse(uint32_t threadId, int fd, const string &bufStr) = 0;
 

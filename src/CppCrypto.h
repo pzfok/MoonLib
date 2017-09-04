@@ -13,10 +13,10 @@ public:
 
     /** 计算MD5值
      *
-     * @param 	const string & data     原数据
-     * @param 	bool upCase             结果是大写还是小写，默认是大写
-     * @retval 	string                  返回MD5的可读字符串格式
-     * @author 	moon
+     * @param   const string & data     原数据
+     * @param   bool upCase             结果是大写还是小写，默认是大写
+     * @retval  string                  返回MD5的可读字符串格式
+     * @author  moon
      */
     static string Md5(const string &data, bool upCase = true);
 
@@ -27,6 +27,23 @@ public:
     // Author:    moontan
     //************************************
     static string Md5File(const string &path)throw(CppException);
+
+    /** HmacSHA256加密
+     *
+     * @param   const string & key
+     * @param   const string & data
+     * @retval  string
+     * @author  moon
+     */
+    static string HmacSHA256(const string &key, const string &data);
+
+    /** Base64编码
+     *
+     * @param   const string & data
+     * @retval  string
+     * @author  moon
+     */
+    static string Base64Encode(const string &data);
 };
 
 #endif

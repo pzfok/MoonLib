@@ -6,6 +6,13 @@
 
 using namespace rapidjson;
 
+rapidjson::Document CppJson::ParseJson(const string &json_str)
+{
+    rapidjson::Document d;
+    d.Parse(json_str.c_str());
+    return d;
+}
+
 string CppJson::JsonToStyledStr(const rapidjson::Document &jsonValue)
 {
     StringBuffer buffer;

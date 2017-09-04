@@ -110,10 +110,10 @@ public:
 
     /** 带Cache的阶乘
      *
-     * @param 	uint32_t n
-     * @param 	uint32_t cacheSize
-     * @retval 	uint32_t
-     * @author 	moontan
+     * @param   uint32_t n
+     * @param   uint32_t cacheSize
+     * @retval  uint32_t
+     * @author  moontan
      */
     static uint32_t FactorialWithCache(uint32_t n, uint32_t cacheSize = 10000);
 
@@ -138,10 +138,10 @@ public:
 
     /** 求2数的最大公约数
      *
-     * @param 	uint32_t num1
-     * @param 	uint32_t num2
-     * @retval 	uint32_t        如果num1或者num2其中至少有一个为0，则返回0，否则返回两数的最大公约数
-     * @author 	moontan
+     * @param   uint32_t num1
+     * @param   uint32_t num2
+     * @retval  uint32_t        如果num1或者num2其中至少有一个为0，则返回0，否则返回两数的最大公约数
+     * @author  moontan
      */
     template<class NumberType>
     static NumberType GCD(NumberType num1, NumberType num2);

@@ -705,6 +705,21 @@ void CppCurl::Init(long flags)throw(CppException)
     }
 }
 
+string CppCurl::UrlEncode(const string &data)
+{
+    string result;
+    CURL *curl = curl_easy_init();
+    char *output = curl_easy_escape(curl, data.data(), data.size());
+    if (output)
+    {
+        result = output;
+        curl_free(output);
+    }
+    curl_easy_cleanup(curl);
+
+    return result;
+}
+
 string CppCurl::GetHttpParam(map<string, string> &params)
 {
     string result;

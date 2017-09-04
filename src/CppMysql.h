@@ -13,6 +13,8 @@
 #endif
 #include "CppLog.h"
 
+#define DEFINE_MYSQL_ROWS_VECTOR(name) std::vector<std::string> &name##_rows = data[#name]
+
 class CppMysql
 {
 public:

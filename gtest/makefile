@@ -85,82 +85,76 @@ LDFLAGS += -lcrypto
 #LDFLAGS += -fprofile-arcs -ftest-coverage
 
 #编译选项
-CXXFLAGS += -g
-CXXFLAGS += -MMD
-CXXFLAGS += -O2
-CXXFLAGS += -Wall
-CXXFLAGS += -Wextra
-CXXFLAGS += -fPIC
-CXXFLAGS += -std=c++11
-CXXFLAGS += -Wno-deprecated
-CXXFLAGS += $(INC_DIR)
-CXXFLAGS += -DUSE_CPP_LOG_MACRO
-#CXXFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -g
+CFLAGS += -MMD
+CFLAGS += -O2
+CFLAGS += -Wall
+CFLAGS += -Wextra
+CFLAGS += -fPIC
+CFLAGS += -std=c++11
+CFLAGS += -Wno-deprecated
+CFLAGS += $(INC_DIR)
+CFLAGS += -DUSE_CPP_LOG_MACRO
+#CFLAGS += -fprofile-arcs -ftest-coverage
 
 #自动搜寻，当前项目的目标文件
 #SUBDIR可以指定多个目录，指定的目录下的所有cpp文件会加入编译，比如 SUBDIR = . src
 PROTO_DIR = ./protocol
-SUBDIR = ./src ${PROTO_DIR}
-CXX_SOURCES =$(foreach n,$(SUBDIR), $(wildcard $(n)/*.cpp $(n)/*.proto)) 
+SUBDIR =
+SUBDIR += ./src 
+SUBDIR += ${PROTO_DIR}
 
 #其他外部依赖cpp文件在此处加上
 CXX_SOURCES +=
 
-#Protocol文件
-PROTO_SOURCE = $(foreach n, $(PROTO_DIR), $(wildcard $(n)/*.proto))
-PROTO_H = $(patsubst %.proto, %.pb.h, $(PROTO_SOURCE))
-PROTO_CC = $(patsubst %.proto, %.pb.cc, $(PROTO_SOURCE))
+#proto的文件要放在最前面
+PROTO_SOURCE = $(foreach n,$(PROTO_DIR), $(wildcard $(n)/*.proto)) 
+CURR_SOURCES = $(patsubst %.proto, %.pb.cc, ${PROTO_SOURCE})
+CURR_SOURCES +=$(foreach n,$(SUBDIR), $(wildcard $(n)/*.cpp)) 
+
+#其他外部依赖cpp文件在此处加上
+CURR_SOURCES +=
 
 #生成对应的.o文件
-CXX_OBJECTS_CPP = $(patsubst %.cpp, %.o, $(CXX_SOURCES))
-CXX_OBJECTS = $(patsubst %.proto, %.pb.o, $(CXX_OBJECTS_CPP))
+CXX_OBJECTS = $(patsubst %.cc, obj/%.o, $(patsubst %.cpp, obj/%.o, ${CURR_SOURCES}))
 
 #添加自定义.o，这些.o不由clean删除，没有则无需填写
 EXT_OBJECTS +=
 
 #生成依赖关系
-DEP_FILES = $(patsubst %.o, %.d, ${CXX_OBJECTS})
+DEP_FILES += $(patsubst %.o, %.d, ${CXX_OBJECTS})
 
-.PHONY:all 
 all: ${TARGET}
 
-$(TARGET): ${CXX_OBJECTS} ${EXT_OBJECTS} ${STATIC_LIBS}
-	$(CXX) -o $@ $^ $(LDFLAGS)
+${TARGET}: ${CXX_OBJECTS} ${EXT_OBJECTS} ${STATIC_LIBS}
+	${CXX} -o $@ $^ ${LDFLAGS}
 
-#Protocol Buffer相关文件处理
-%.pb.h: %.proto
-	${ROOT_DIR}/ext/bin/protoc $^ --cpp_out=.
 
-%.pb.cc: %.proto
-	${ROOT_DIR}/ext/bin/protoc $^ --cpp_out=.
+#这里为什么每次只能生成一个文件，要么是.h，要么是.cc
+%.pb.cc %.pb.h:%.proto
+	#cd ${PROTO_DIR}
+	protoc $< --cpp_out=.
 
-%.d: %.cc
-	@set -e;${CXX} -MM $< $(CXXFLAGS) -MF $(patsubst %.cc, %.d, $<)
+obj/%.pb.o:%.pb.cc
+	@mkdir -p `dirname $@`
+	${CXX} -c $(CFLAGS) -MT $@ -MF $(patsubst %.pb.cc, obj/%.pb.d, $<) -o $@ $<
 
-#cpp相关文件处理，此处会自动匹配到cc，c文件，隐含规则
-%.o: %.cpp
-	${CXX} -c $(CXXFLAGS) -o $@ $<
-
-#为什么这一个依赖没有也可以？答：   它会自动匹配到.o的部分？貌似是这样的，使用%.c也可以匹配，并且会自动删除中间文件
-#%.o: %.cc
-#	${CXX} -c $(CXXFLAGS) -o $@ $<
-
-%.d: %.cpp
-	@set -e;${CXX} -MM $< $(CXXFLAGS) -MF $(patsubst %.cpp, %.d, $<)
-
+obj/%.o:%.cpp
+	@mkdir -p `dirname $@`
+	${CXX} -c $(CFLAGS) -MT $@ -MF $(patsubst %.cpp, obj/%.d, $<) -o $@ $<
+ 
 -include ${DEP_FILES}
+ 
+clean:
+	@rm -rf ${TARGET} obj ${PROTO_DIR}/*.pb.* gcov
 
+run:
+	make
+	./$(TARGET)
+	
 test:
 	@echo "CXX_OBJECTS:"${CXX_OBJECTS}
 	@echo "STATIC_LIBS:"${STATIC_LIBS}
 	@echo "PROTO_CC:"${PROTO_CC}
 	@echo "PROTO_H:"${PROTO_H}
 	@echo "DEP_FILES:"${DEP_FILES}
-
-.PHONY:clean 
-clean:
-	rm -rf ${TARGET} ${CXX_OBJECTS} ${DEP_FILES} ${PROTO_H} ${PROTO_CC} gcov
-
-run:
-	make
-	./$(TARGET)

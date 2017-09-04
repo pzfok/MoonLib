@@ -26,12 +26,7 @@ STATIC_LIBS_DIR = ${ROOT_DIR}/ext/libs
 #其他库文件，一行一个
 STATIC_LIBS += ${STATIC_LIBS_DIR}/libtinyxml.a
 STATIC_LIBS += ${STATIC_LIBS_DIR}/libpcre.a
-ifdef CYGWIN
-STATIC_LIBS += ${STATIC_LIBS_DIR}/chartdir60.dll
-STATIC_LIBS += ${STATIC_LIBS_DIR}/libiconv.a
-else
 STATIC_LIBS += ${STATIC_LIBS_DIR}/libchartdir.so
-endif
 #STATIC_LIBS += ${STATIC_LIBS_DIR}/libcrypto.a
 #STATIC_LIBS += ${STATIC_LIBS_DIR}/libcurl.a
 STATIC_LIBS += ${STATIC_LIBS_DIR}/libjsoncpp.a

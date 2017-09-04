@@ -235,8 +235,8 @@ public:
 
     /** 获得ClientID
      *
-     * @retval 	const zookeeper::clientid_t *
-     * @author 	moontan
+     * @retval  const zookeeper::clientid_t *
+     * @author  moontan
      */
     const clientid_t *GetClientID()
     {
@@ -344,12 +344,12 @@ public:
 
     /** 将节点的子节点的Key和Value都拿出来
      *
-     * @param 	const std::string & path
-     * @param 	std::map<std::string
-     * @param 	ValueStat> & children_value
-     * @param 	uint32_t max_value_size         由于获得节点内容需要预先分配内存，这个值表示每个Value预先分配内存的大小
-     * @retval 	int32_t
-     * @author 	moontan
+     * @param   const std::string & path
+     * @param   std::map<std::string
+     * @param   ValueStat> & children_value
+     * @param   uint32_t max_value_size         由于获得节点内容需要预先分配内存，这个值表示每个Value预先分配内存的大小
+     * @retval  int32_t
+     * @author  moontan
      */
     int32_t GetChildrenValue(const std::string &path, std::map<std::string, ValueStat> &children_value,
                              uint32_t max_value_size = 2048);
@@ -381,28 +381,28 @@ protected:
 
     /** 处理批量操作过程中对临时节点列表的操作
      *
-     * @param 	const std::vector<zoo_op> & multi_ops
-     * @param 	const std::vector<zoo_op_result_t> & multi_result
-     * @retval 	void
-     * @author 	moontan
+     * @param   const std::vector<zoo_op> & multi_ops
+     * @param   const std::vector<zoo_op_result_t> & multi_result
+     * @retval  void
+     * @author  moontan
      */
     void ProcMultiEphemeralNode(const std::vector<zoo_op> &multi_ops, const std::vector<zoo_op_result_t> &multi_result);
 
     /** 处理异步操作成功后，对于Watcher的处理
      *
-     * @param 	ZookeeperCtx & context
-     * @retval 	void 
-     * @author 	moontan
+     * @param   ZookeeperCtx & context
+     * @retval  void 
+     * @author  moontan
      */
     void ProcAsyncWatcher(ZookeeperCtx &context);
 
     /** 删除原生API中指定Watcher
      *
-     * @param 	int type
-     * @param 	const char * abs_path
-     * @param 	void * p_zookeeper_context
-     * @retval 	void
-     * @author 	moontan
+     * @param   int type
+     * @param   const char * abs_path
+     * @param   void * p_zookeeper_context
+     * @retval  void
+     * @author  moontan
      */
     void DeleteWatcher(int type, const char *abs_path, void *p_zookeeper_context);
 

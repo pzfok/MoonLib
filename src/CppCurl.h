@@ -113,13 +113,14 @@ public:
                            const string &proxy = "", int32_t timeOut = 10)throw(CppException);
 
     static void Init(long flags = CURL_GLOBAL_ALL)throw(CppException);
-    //************************************
-    // Describe:  将字符串编码成URL
-    // Parameter: const string & data
-    // Returns:   string
-    // Author:    moon
-    //************************************
-    /*    static string GetUrlEncode(const string &data);*/
+
+    /** 将字符串编码成URL
+     *
+     * @param   const string & data
+     * @retval  string
+     * @author  moon
+     */
+    static string UrlEncode(const string &data);
 
     /** 获得请求内容
      *  TODO 暂时不考虑特殊符号，比如param内有'='或者'&'，这部分可以转换为%**的格式

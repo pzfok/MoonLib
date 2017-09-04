@@ -56,9 +56,9 @@ public:
 
     /** 大数相减
      *
-     * @param 	const CppBigNum & right
-     * @retval 	const CppBigNum
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  const CppBigNum
+     * @author  moontan
      */
     const CppBigNum operator-(const CppBigNum &right) const;
 
@@ -73,9 +73,9 @@ public:
 
     /** 大数相除，忽略余数
      *
-     * @param 	const CppBigNum & right
-     * @retval 	const CppBigNum
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  const CppBigNum
+     * @author  moontan
      */
     const CppBigNum operator/(const CppBigNum &right) const;
 
@@ -90,9 +90,9 @@ public:
 
     /** 实现!=
      *
-     * @param 	const CppBigNum & right
-     * @retval 	bool
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  bool
+     * @author  moontan
      */
     bool operator!=(const CppBigNum &right) const;
 
@@ -107,9 +107,9 @@ public:
 
     /** 实现小于等于比较
      *
-     * @param 	const CppBigNum & right
-     * @retval 	bool
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  bool
+     * @author  moontan
      */
     bool operator<=(const CppBigNum &right) const;
 
@@ -144,9 +144,9 @@ public:
 
     /** 实现大于等于比较
      *
-     * @param 	const CppBigNum & right
-     * @retval 	bool
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  bool
+     * @author  moontan
      */
     bool operator>=(const CppBigNum &right) const;
 
@@ -178,9 +178,9 @@ public:
 
     /** 重载-=
      *
-     * @param 	const CppBigNum & right
-     * @retval 	CppBigNum
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  CppBigNum
+     * @author  moontan
      */
     CppBigNum operator-=(const CppBigNum &right);
 
@@ -194,25 +194,25 @@ public:
 
     /** 重载/=
      *
-     * @param 	const CppBigNum & right
-     * @retval 	CppBigNum
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  CppBigNum
+     * @author  moontan
      */
     CppBigNum operator/=(const CppBigNum &right);
 
     /** 重载%=
      *
-     * @param 	const CppBigNum & right
-     * @retval 	CppBigNum
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  CppBigNum
+     * @author  moontan
      */
     CppBigNum operator%=(const CppBigNum &right);
 
     /** 重载取模
      *
-     * @param 	const CppBigNum & right
-     * @retval 	CppBigNum
-     * @author 	moontan
+     * @param   const CppBigNum & right
+     * @retval  CppBigNum
+     * @author  moontan
      */
     CppBigNum operator%(const CppBigNum &right);
 
@@ -234,22 +234,22 @@ public:
 
     /** 取负值
      *
-     * @retval 	CppBigNum
-     * @author 	moontan
+     * @retval  CppBigNum
+     * @author  moontan
      */
     CppBigNum Negative() const;
 
     /** 求平方根，只能精确到整数级别，向下取整，非正数直接返回0
      *
-     * @retval 	CppBigNum
-     * @author 	moontan
+     * @retval  CppBigNum
+     * @author  moontan
      */
     CppBigNum Sqrt() const;
 
     /** 求绝对值
      *
-     * @retval 	CppBigNum
-     * @author 	moontan
+     * @retval  CppBigNum
+     * @author  moontan
      */
     CppBigNum Abs() const;
 
@@ -258,10 +258,10 @@ protected:
 
     /** 字符串表示的数字相比较，需要保证输入是规范的非负值数字，不包含以0或者符号开头的特殊数字
      *
-     * @param 	const string & numStr1
-     * @param 	const string & numStr2
-     * @retval 	bool
-     * @author 	moontan
+     * @param   const string & numStr1
+     * @param   const string & numStr2
+     * @retval  bool
+     * @author  moontan
      */
     static bool numStrLess(const string &numStr1, const string &numStr2);
 };
@@ -298,9 +298,9 @@ public:
 
     /** 大数相减
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	const CppBigNumPro
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   const CppBigNumPro
+    * @author   moontan
     */
     const CppBigNumPro operator-(const CppBigNumPro &right) const;
 
@@ -315,9 +315,9 @@ public:
 
     /** 大数相除，忽略余数
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	const CppBigNumPro
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   const CppBigNumPro
+    * @author   moontan
     */
     const CppBigNumPro operator/(const CppBigNumPro &right) const;
 
@@ -332,9 +332,9 @@ public:
 
     /** 实现!=
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	bool
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   bool
+    * @author   moontan
     */
     bool operator!=(const CppBigNumPro &right) const;
 
@@ -349,9 +349,9 @@ public:
 
     /** 实现小于等于比较
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	bool
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   bool
+    * @author   moontan
     */
     bool operator<=(const CppBigNumPro &right) const;
 
@@ -386,9 +386,9 @@ public:
 
     /** 实现大于等于比较
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	bool
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   bool
+    * @author   moontan
     */
     bool operator>=(const CppBigNumPro &right) const;
 
@@ -420,9 +420,9 @@ public:
 
     /** 重载-=
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	CppBigNumPro
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   CppBigNumPro
+    * @author   moontan
     */
     CppBigNumPro operator-=(const CppBigNumPro &right);
 
@@ -436,25 +436,25 @@ public:
 
     /** 重载/=
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	CppBigNumPro
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   CppBigNumPro
+    * @author   moontan
     */
     CppBigNumPro operator/=(const CppBigNumPro &right);
 
     /** 重载%=
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	CppBigNumPro
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   CppBigNumPro
+    * @author   moontan
     */
     CppBigNumPro operator%=(const CppBigNumPro &right);
 
     /** 重载取模
     *
-    * @param 	const CppBigNumPro & right
-    * @retval 	CppBigNumPro
-    * @author 	moontan
+    * @param    const CppBigNumPro & right
+    * @retval   CppBigNumPro
+    * @author   moontan
     */
     CppBigNumPro operator%(const CppBigNumPro &right);
 
@@ -468,22 +468,22 @@ public:
 
     /** 取负值
     *
-    * @retval 	CppBigNumPro
-    * @author 	moontan
+    * @retval   CppBigNumPro
+    * @author   moontan
     */
     CppBigNumPro Negative() const;
 
     /** 求平方根，只能精确到整数级别，向下取整，非正数直接返回0
     *
-    * @retval 	CppBigNumPro
-    * @author 	moontan
+    * @retval   CppBigNumPro
+    * @author   moontan
     */
     CppBigNumPro Sqrt() const;
 
     /** 求绝对值
     *
-    * @retval 	CppBigNumPro
-    * @author 	moontan
+    * @retval   CppBigNumPro
+    * @author   moontan
     */
     CppBigNumPro Abs() const;
 
@@ -495,10 +495,10 @@ protected:
 
     /** 数组表示的数字相比较，需要保证输入是规范的非负值数字，不包含以0或者符号开头的特殊数字
     *
-    * @param 	const string & numVec1
-    * @param 	const string & numVec2
-    * @retval 	bool
-    * @author 	moontan
+    * @param    const string & numVec1
+    * @param    const string & numVec2
+    * @retval   bool
+    * @author   moontan
     */
     static bool numVecLess(const std::deque<uint32_t> &numVec1, const std::deque<uint32_t> &numVec2);
 };

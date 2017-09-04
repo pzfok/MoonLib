@@ -18,9 +18,9 @@ public:
 
     /** 使用整数初始化分数
      *
-     * @param 	int32_t numerator
-     * @retval 	
-     * @author 	moontan
+     * @param   int32_t numerator
+     * @retval  
+     * @author  moontan
      */
     CppFraction(int32_t num);
 
@@ -30,40 +30,40 @@ public:
 
     /** 分数加法
      *
-     * @param 	const CppFraction<NumberType>& right
-     * @retval 	CppFraction
-     * @author 	moontan
+     * @param   const CppFraction<NumberType>& right
+     * @retval  CppFraction
+     * @author  moontan
      */
     CppFraction<NumberType>operator+(const CppFraction<NumberType>&right) const;
 
     /** 分数减法
      *
-     * @param 	const CppFraction<NumberType>& right
-     * @retval 	CppFraction
-     * @author 	moontan
+     * @param   const CppFraction<NumberType>& right
+     * @retval  CppFraction
+     * @author  moontan
      */
     CppFraction<NumberType>operator-(const CppFraction<NumberType>&right) const;
 
     /** 分数乘法
      *
-     * @param 	const CppFraction<NumberType>& right
-     * @retval 	CppFraction
-     * @author 	moontan
+     * @param   const CppFraction<NumberType>& right
+     * @retval  CppFraction
+     * @author  moontan
      */
     CppFraction<NumberType>operator*(const CppFraction<NumberType>&right) const;
 
     /** 分数除法
      *
-     * @param 	const CppFraction<NumberType>& right
-     * @retval 	CppFraction
-     * @author 	moontan
+     * @param   const CppFraction<NumberType>& right
+     * @retval  CppFraction
+     * @author  moontan
      */
     CppFraction<NumberType>operator/(const CppFraction<NumberType>&right) const;
 
     /** 取负值
      *
-     * @retval 	CppFraction
-     * @author 	moontan
+     * @retval  CppFraction
+     * @author  moontan
      */
     CppFraction<NumberType>Negative() const;
 
@@ -74,8 +74,8 @@ public:
 
     /** 转换为可读字符串[分子]/[分母]
      *
-     * @retval 	std::string
-     * @author 	moontan
+     * @retval  std::string
+     * @author  moontan
      */
     std::string ToString() const;
 

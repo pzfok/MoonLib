@@ -5,6 +5,9 @@
 #include <fstream>
 
 #include <openssl/md5.h>
+#include <openssl/hmac.h>
+#include <openssl/bio.h>  
+#include <openssl/buffer.h>  
 
 #include "CppString.h"
 
@@ -44,4 +47,41 @@ string CppCrypto::Md5File(const string &path)throw(CppException)
     MD5_Final(md, &c);
 
     return CppString::Hex2Str((const char *)md, MD5_DIGEST_LENGTH);
+}
+
+string CppCrypto::HmacSHA256(const string &key, const string &data)
+{
+    // http://blog.csdn.net/yasi_xi/article/details/9066003
+
+    unsigned int resultLen = EVP_MAX_MD_SIZE;
+    string result(resultLen, 0);
+
+    (void)HMAC(EVP_sha256(), key.data(), key.size(),
+               reinterpret_cast<const unsigned char *>(data.data()), data.size(),
+               reinterpret_cast<unsigned char *>(&result[0]), &resultLen);
+
+    result.resize(resultLen);
+    return result;
+}
+
+string CppCrypto::Base64Encode(const string &data)
+{
+    // http://blog.csdn.net/yasi_xi/article/details/9040793
+
+    BIO * bmem = NULL;
+    BIO * b64 = NULL;
+    BUF_MEM * bptr = NULL;
+
+    b64 = BIO_new(BIO_f_base64());
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    bmem = BIO_new(BIO_s_mem());
+    b64 = BIO_push(b64, bmem);
+    BIO_write(b64, data.data(), data.size());
+    (void)BIO_flush(b64);
+    BIO_get_mem_ptr(b64, &bptr);
+
+    string result(bptr->data, bptr->length);
+    BIO_free_all(b64);
+
+    return result;
 }

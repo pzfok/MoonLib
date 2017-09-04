@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "CppString.h"
+#include "CppLog.h"
 
 using namespace std;
 
@@ -49,59 +50,37 @@ int gettimeofday(timeval *timev, __timezone__ *timez)
 }
 #endif
 
-string CppTime::GetTimeStr(time_t timet /*= time(NULL)*/, const string &timeFormat /*= "%Y-%m-%d %H:%M:%S"*/)
+string CppTime::GetTimeStr(tm tmS, const string &timeFormat /*= "%Y-%m-%d %H:%M:%S"*/)
 {
     const size_t MAX_STR_LEN = 256;
-
-    tm timeStruct;
-    memset(&timeStruct, 0, sizeof(timeStruct));
-
     char buf[MAX_STR_LEN];
-    strftime(buf, sizeof(buf), timeFormat.c_str(), localtime_r(&timet, &timeStruct));
+    strftime(buf, sizeof(buf), timeFormat.c_str(), &tmS);
     return buf;
 }
 
-time_t CppTime::GetTimeFromStr(const string &timeStr)
+string CppTime::GetTimeStr(time_t timet /*= time(NULL)*/, const string &timeFormat /*= "%Y-%m-%d %H:%M:%S"*/)
 {
     tm timeStruct;
-    memset(&timeStruct, 0, sizeof(timeStruct));
+    localtime_r(&timet, &timeStruct);
 
-    //     static vector<string> splitChars;
-    //     if (splitChars.empty())
-    //     {
-    //         splitChars.push_back("-");
-    //         splitChars.push_back("/");
-    //         splitChars.push_back(" ");
-    //         splitChars.push_back(":");
-    //     }
-    // 
-    //     vector<string> splitResult;
-    //     CppString::SplitStr(timeStr, splitChars, splitResult);
-    //     if (splitResult.size() >=1)
-    //     {
-    //         timeStruct.tm_year=CppString::GetArgs()
-    //     }
+    return GetTimeStr(timeStruct, timeFormat);
+}
 
-    stringstream ss(timeStr);
-    char tmpChar;
-    ss >> timeStruct.tm_year;
-    ss >> tmpChar;
-    ss >> timeStruct.tm_mon;
-    ss >> tmpChar;
-    ss >> timeStruct.tm_mday;
-    ss >> tmpChar;
-    ss >> timeStruct.tm_hour;
-    ss >> tmpChar;
-    ss >> timeStruct.tm_min;
-    ss >> tmpChar;
-    ss >> timeStruct.tm_sec;
+time_t CppTime::GetTimeFromStr(const string &timeStr, const string &timeFormat /*= "%Y-%m-%d %H:%M:%S"*/)
+{
+    tm tm_result = GetTmFromStr(timeStr, timeFormat);
+    return mktime(&tm_result);
+}
 
-    //     sscanf((char *)timeStr.c_str(), "%d-%d-%d %d:%d:%d", &timeStruct.tm_year, &timeStruct.tm_mon, &timeStruct.tm_mday,
-    //            &timeStruct.tm_hour, &timeStruct.tm_min, &timeStruct.tm_sec);
-    timeStruct.tm_year -= 1900;
-    timeStruct.tm_mon--;
+tm CppTime::GetTmFromStr(const string &timeStr, const string &timeFormat /*= "%Y-%m-%d %H:%M:%S"*/)
+{
+    tm tm_result;
+    if (strptime(timeStr.c_str(), timeFormat.c_str(), &tm_result) == NULL)
+    {
+        THROW("时间格式不正确.");
+    }
 
-    return mktime(&timeStruct);
+    return tm_result;
 }
 
 string CppTime::GetUTimeStr(timeval *pTimeval /*= NULL*/, const string &timeFormat /*= "%Y-%m-%d %H:%M:%S"*/)

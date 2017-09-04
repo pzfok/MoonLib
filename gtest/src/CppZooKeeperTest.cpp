@@ -73,12 +73,14 @@ string GetEventTypeStr(int type)
 
 void DisableZkLink()
 {
-    (void)CppSystem::ExcuteCommand("iptables -I INPUT -i lo -p tcp --dport 2181 -j DROP;iptables  -I OUTPUT -o lo -p tcp --sport 2181 -j DROP");
+    int32_t ret;
+    (void)CppSystem::ExcuteCommand("iptables -I INPUT -i lo -p tcp --dport 2181 -j DROP;iptables  -I OUTPUT -o lo -p tcp --sport 2181 -j DROP", ret);
 }
 
 void EnableZkLink()
 {
-    (void)CppSystem::ExcuteCommand("iptables -I INPUT -i lo -p tcp --dport 2181 -j ACCEPT;iptables  -I OUTPUT -o lo -p tcp --sport 2181 -j ACCEPT");
+    int32_t ret;
+    (void)CppSystem::ExcuteCommand("iptables -I INPUT -i lo -p tcp --dport 2181 -j ACCEPT;iptables  -I OUTPUT -o lo -p tcp --sport 2181 -j ACCEPT",ret);
 }
 
 #define ASYNC_BEGIN(count) done = count

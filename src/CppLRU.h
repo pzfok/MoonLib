@@ -13,25 +13,25 @@ class CppLRU
 public:
     /** 判断元素是否存在
      *
-     * @param 	const T * t
-     * @retval 	bool
-     * @author 	moontan
+     * @param   const T * t
+     * @retval  bool
+     * @author  moontan
      */
     bool Exist(const T &t);
 
     /** 往LRU里添加元素
      *
-     * @param 	const T & t
-     * @retval 	void
-     * @author 	moontan
+     * @param   const T & t
+     * @retval  void
+     * @author  moontan
      */
     void Add(const T &t);
 
     /** 删除元素
      *
-     * @param 	const T & t
-     * @retval 	void
-     * @author 	moontan
+     * @param   const T & t
+     * @retval  void
+     * @author  moontan
      */
     void Del(const T &t);
 
