@@ -122,6 +122,15 @@ public:
      */
     static string UrlEncode(const string &data);
 
+    /** HTML解码，把常用的使用替换方式解了，随便写的，不一定准
+     *  http://114.xixik.com/character/
+     *
+     * @param 	cosnt string & data
+     * @retval 	string
+     * @author 	moon
+     */
+    static string HtmlDecode(const string &data);
+
     /** 获得请求内容
      *  TODO 暂时不考虑特殊符号，比如param内有'='或者'&'，这部分可以转换为%**的格式
      *

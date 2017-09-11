@@ -445,6 +445,10 @@ int32_t CodeConv(iconv_t &cd, const string &src, string &dst)
     {
         dst.assign(pOldPtr, oldDstLen - dstLen);
     }
+    else if (ret == -1)
+    {
+        return errno == EILSEQ;
+    }
 
     return ret;
 }

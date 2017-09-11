@@ -695,6 +695,30 @@ string CppCurl::PostFile(const string &url, const map<string, string> &formData,
     return result.str();
 }
 
+string CppCurl::HtmlDecode(const string &data)
+{
+    static const vector<pair<string, string>> DECODE_MAP{
+        { "&ensp;"," " },
+        { "&emsp;"," " },
+        { "&nbsp;"," " },
+        { "&lt;","<" },
+        { "&gt;",">" },
+        { "&amp;","&" },
+        { "&quot;","\"" },
+        { "&rdquo;","”" },
+        { "&ldquo;","“" },
+        { "&mdash;","—" }
+    };
+
+    string result = data;
+    for (auto &decode_pair : DECODE_MAP)
+    {
+        result = CppString::ReplaceStr(result, decode_pair.first, decode_pair.second);
+    }
+
+    return result;
+}
+
 void CppCurl::Init(long flags)throw(CppException)
 {
     CURLcode ret = curl_global_init(flags);
