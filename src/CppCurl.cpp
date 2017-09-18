@@ -707,6 +707,7 @@ string CppCurl::HtmlDecode(const string &data)
         { "&quot;","\"" },
         { "&rdquo;","”" },
         { "&ldquo;","“" },
+        { "&hellip;","…" },
         { "&mdash;","—" }
     };
 
