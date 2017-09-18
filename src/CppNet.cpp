@@ -109,14 +109,14 @@ void CppEpollManager::AddOrModFd(int fd, epoll_event &event) throw(CppException)
         ret = epoll_ctl(mEpollFd, EPOLL_CTL_MOD, fd, &event);
     }
 
-    ERROR_THROW_F(ret, "epoll_ctl failed,event[%u],fd[%d],errno[%d],error[%s].",
-                  event.events, fd, errno, strerror(errno));
+    RET_THROW_F(ret, "epoll_ctl failed,event[%u],fd[%d],errno[%d],error[%s].",
+                event.events, fd, errno, strerror(errno));
 }
 
 void CppEpollManager::DelFd(int fd) throw(CppException)
 {
     int32_t ret = epoll_ctl(mEpollFd, EPOLL_CTL_DEL, fd, NULL);
-    ERROR_THROW_F(ret, "epoll_ctl失败,fd[%d],errno[%d],error[%s].", fd, errno, strerror(errno));
+    RET_THROW_F(ret, "epoll_ctl失败,fd[%d],errno[%d],error[%s].", fd, errno, strerror(errno));
     unique_lock<mutex> lock(mFdLock);
     mFds.erase(fd);
     // DEBUG_LOG("Delete fd[%d] from epoll success.", fd);
@@ -230,9 +230,9 @@ int32_t MultiThreadClientBase::ProcWrite(uint32_t threadId, epoll_event &inevent
 {
     const string data = GetSendData(threadId, inevent.data.fd);
     int32_t ret = write(inevent.data.fd, data.data(), data.size());
-    CHECK_RETURN_F(mpCppLog, ret > 0, ret, CppLog::ERROR,
-                   "write失败,event[%u],fd[%d],errno[%d],error[%s].",
-                   inevent.events, inevent.data.fd, errno, strerror(errno));
+    CHECK_RETURN_FI(mpCppLog, ret > 0, ret, CppLog::ERROR,
+                    "write失败,event[%u],fd[%d],errno[%d],error[%s].",
+                    inevent.events, inevent.data.fd, errno, strerror(errno));
     // DEBUG_LOG("Proc a request,send[%lu].", gClientData[inevent.data.fd]);
 
     // 记录开始时间
@@ -249,7 +249,7 @@ int32_t MultiThreadClientBase::ProcRead(uint32_t threadId, epoll_event &inevent)
 
     // 计算耗时
     int64_t usedTimeUs = CppTime::TimevDiff(receiveTime, GetClientData(threadId, inevent.data.fd)->sendTime);
-    CHECK_RETURN_F(mpCppLog, usedTimeUs > 0, -1, CppLog::ERROR, "时间不正确[%ld].", usedTimeUs);
+    CHECK_RETURN_FI(mpCppLog, usedTimeUs > 0, -1, CppLog::ERROR, "时间不正确[%ld].", usedTimeUs);
 
     // 总耗时统计
     gTotalTimeUs += usedTimeUs;
@@ -283,8 +283,8 @@ int32_t MultiThreadClientBase::ProcRead(uint32_t threadId, epoll_event &inevent)
     int readSize;
     while ((readSize = read(inevent.data.fd, buf, sizeof(buf))) > 0)
     {
-        CHECK_RETURN_F(mpCppLog, readSize > 0, readSize, CppLog::ERROR,
-                       "read error,readSize[%d],event[%u],fd[%d,]errno[%d],error[%s].", readSize, inevent.events, inevent.data.fd, errno, strerror(errno));
+        CHECK_RETURN_FI(mpCppLog, readSize > 0, readSize, CppLog::ERROR,
+                        "read error,readSize[%d],event[%u],fd[%d,]errno[%d],error[%s].", readSize, inevent.events, inevent.data.fd, errno, strerror(errno));
 
         bufStr.append(buf, readSize);
     }
@@ -313,7 +313,7 @@ void MultiThreadClientBase::ThreadFunc(uint32_t threadId)
     for (uint32_t i = 0; i < mClientCountPerThread; ++i)
     {
         ev.data.fd = ConnectServer();
-        CHECK_CONTINUE(mpCppLog, ev.data.fd >= 0, ev.data.fd, CppLog::ERROR);
+        CHECK_CONTINUE_I(mpCppLog, ev.data.fd >= 0, ev.data.fd, CppLog::ERROR);
         mEpollManager.AddOrModFd(ev.data.fd, ev);
         mClientDatas[threadId][ev.data.fd] = MakeNewClientData();
         mClientDatas[threadId][ev.data.fd]->uniqueFd.Reset(ev.data.fd);
@@ -330,7 +330,7 @@ void MultiThreadClientBase::ThreadFunc(uint32_t threadId)
         mEpollManager.Wait(readFunc, writeFunc, deleteFdFunc, waitTime);
     }
 
-    DEBUG_ILOG(mpCppLog, "exit thread[%u].", threadId);
+    DEBUG_LOGI(mpCppLog, "exit thread[%u].", threadId);
 }
 
 int32_t MultiThreadClientBase::ConnectServer()
@@ -341,7 +341,7 @@ int32_t MultiThreadClientBase::ConnectServer()
     // 解析域名，如果是IP则不用解析，如果出错，显示错误信息
     hostent nlp_host, *p_host;
     gethostbyname_r(mServerAddr.c_str(), &nlp_host, buf, sizeof(buf), &p_host, &ret);
-    CHECK_RETURN_F(mpCppLog, ret == 0, -1, CppLog::ERROR, "gethostbyname失败,errno[%d],error[%s].", errno, strerror(errno));
+    CHECK_RETURN_FI(mpCppLog, ret == 0, -1, CppLog::ERROR, "gethostbyname失败,errno[%d],error[%s].", errno, strerror(errno));
 
     // 设置pin变量，包括协议、地址、端口等，此段可直接复制到自己的程序中
     sockaddr_in pin;
@@ -352,22 +352,22 @@ int32_t MultiThreadClientBase::ConnectServer()
 
     // 建立socket
     int fd = socket(AF_INET, SOCK_STREAM, 0);
-    CHECK_RETURN_F(mpCppLog, fd >= 0, fd, CppLog::ERROR, "socket失败,ret[%d],errno[%d],error[%s].", fd, errno, strerror(errno));
+    CHECK_RETURN_FI(mpCppLog, fd >= 0, fd, CppLog::ERROR, "socket失败,ret[%d],errno[%d],error[%s].", fd, errno, strerror(errno));
 
     // 中途出错，释放FD
     UniqueFd uniqFd(fd);
 
     // 建立连接
     ret = connect(fd, (struct sockaddr*)&pin, sizeof(pin));
-    ERROR_RETURN_F(mpCppLog, ret, CppLog::ERROR, "connect失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(mpCppLog, ret, CppLog::ERROR, "connect失败,errno[%d],error[%s].", errno, strerror(errno));
 
     int flags = fcntl(fd, F_GETFL, 0);
     ret = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-    ERROR_RETURN_F(mpCppLog, ret, CppLog::ERROR, "fcntl O_NONBLOCK失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(mpCppLog, ret, CppLog::ERROR, "fcntl O_NONBLOCK失败,errno[%d],error[%s].", errno, strerror(errno));
 
     flags = 1;
     ret = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&flags, sizeof(flags));
-    ERROR_RETURN_F(mpCppLog, ret, CppLog::ERROR, "setsockopt TCP_NODELAY失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(mpCppLog, ret, CppLog::ERROR, "setsockopt TCP_NODELAY失败,errno[%d],error[%s].", errno, strerror(errno));
 
     // 初始化连接
     InitConnection(fd);
@@ -393,7 +393,7 @@ int32_t MultiThreadClientBase::Run()
 
     uint32_t second = 0;
 
-    DEBUG_ILOG(mpCppLog, "开始压测[%s:%u],线程数[%u],每线程客户端数[%u],总客户端数[%u],压测[%u]秒.",
+    DEBUG_LOGI(mpCppLog, "开始压测[%s:%u],线程数[%u],每线程客户端数[%u],总客户端数[%u],压测[%u]秒.",
                mServerAddr.c_str(), mServerPort, mClientThreadCount, mClientCountPerThread,
                mClientThreadCount * mClientCountPerThread, mRunSecond);
     while (true)
@@ -402,12 +402,12 @@ int32_t MultiThreadClientBase::Run()
         currTotalSuccess = gSuccessCount;
         currTotalFail = gFailCount;
 
-        DEBUG_ILOG(mpCppLog, "周期成功[%llu],周期失败[%llu],周期成功率[%.2lf%%],最大耗时[%llu],最小耗时[%llu],平均耗时[%llu].",
+        DEBUG_LOGI(mpCppLog, "周期成功[%llu],周期失败[%llu],周期成功率[%.2lf%%],最大耗时[%llu],最小耗时[%llu],平均耗时[%llu].",
                    currTotalSuccess - lastSuccess, currTotalFail - lastFail,
                    (currTotalSuccess - lastSuccess + currTotalFail - lastFail) == 0 ? 0 : (currTotalSuccess - lastSuccess) * 100.0 / (currTotalSuccess - lastSuccess + currTotalFail - lastFail),
                    gCurrMaxTimeUs, gCurrMinTimeUs,
                    (currTotalSuccess - lastSuccess + currTotalFail - lastFail) == 0 ? 0 : gCurrTotalTimeUs / (currTotalSuccess - lastSuccess + currTotalFail - lastFail));
-        DEBUG_ILOG(mpCppLog, "总成功[%llu],总失败[%llu],总成功率[%.2lf%%],总最大耗时[%llu],总最小耗时[%llu],总平均耗时[%llu].",
+        DEBUG_LOGI(mpCppLog, "总成功[%llu],总失败[%llu],总成功率[%.2lf%%],总最大耗时[%llu],总最小耗时[%llu],总平均耗时[%llu].",
                    currTotalSuccess, currTotalFail,
                    (currTotalSuccess + currTotalFail) == 0 ? 0 : currTotalSuccess * 100.0 / (currTotalSuccess + currTotalFail),
                    gMaxTimeUs, gMinTimeUs,
@@ -426,7 +426,7 @@ int32_t MultiThreadClientBase::Run()
         }
     }
 
-    DEBUG_ILOG(mpCppLog, "结束压测,线程数[%u],每线程客户端数[%u],总客户端数[%u],成功[%llu],失败[%llu],成功率[%.2lf%%],每秒请求[%llu],最大耗时[%llu],最小耗时[%llu],平均耗时[%llu].",
+    DEBUG_LOGI(mpCppLog, "结束压测,线程数[%u],每线程客户端数[%u],总客户端数[%u],成功[%llu],失败[%llu],成功率[%.2lf%%],每秒请求[%llu],最大耗时[%llu],最小耗时[%llu],平均耗时[%llu].",
                mClientThreadCount, mClientCountPerThread, mClientThreadCount * mClientCountPerThread,
                currTotalSuccess, currTotalFail,
                (currTotalSuccess + currTotalFail) == 0 ? 0 : currTotalSuccess * 100.0 / (currTotalSuccess + currTotalFail),

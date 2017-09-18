@@ -600,22 +600,22 @@ int MultiThreadServer::CreateServerSocket()
 {
     // 创建监听Socket
     int serverFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    CHECK_RETURN_F(&cppLog, serverFd >= 0, serverFd, CppLog::ERROR, "socket失败,errno[%d],error[%s].", errno, strerror(errno));
+    CHECK_RETURN_FI(&cppLog, serverFd >= 0, serverFd, CppLog::ERROR, "socket失败,errno[%d],error[%s].", errno, strerror(errno));
     UniqueFd uniqServerFd(serverFd);
 
     // 设置监听端口非阻塞
     int flags = fcntl(serverFd, F_GETFL, 0);
     int32_t ret = fcntl(serverFd, F_SETFL, flags | O_NONBLOCK);
-    ERROR_RETURN_F(&cppLog, ret, CppLog::ERROR, "fcntl失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(&cppLog, ret, CppLog::ERROR, "fcntl失败,errno[%d],error[%s].", errno, strerror(errno));
 
     // 设置REUSEADDR标识，服务器重启可以快速使用这个端口，避免在TIME_WAIT状态无法重新监听这个端口
     flags = 1;
     ret = setsockopt(serverFd, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
-    ERROR_RETURN_F(&cppLog, ret, CppLog::ERROR, "setsockopt SO_REUSEADDR失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(&cppLog, ret, CppLog::ERROR, "setsockopt SO_REUSEADDR失败,errno[%d],error[%s].", errno, strerror(errno));
 
     flags = 1;
     ret = setsockopt(serverFd, IPPROTO_TCP, TCP_NODELAY, (char *)&flags, sizeof(flags));
-    ERROR_RETURN_F(&cppLog, ret, CppLog::ERROR, "setsockopt TCP_NODELAY失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(&cppLog, ret, CppLog::ERROR, "setsockopt TCP_NODELAY失败,errno[%d],error[%s].", errno, strerror(errno));
 
     // 监听端口设置
     sockaddr_in servAddr;
@@ -626,12 +626,12 @@ int MultiThreadServer::CreateServerSocket()
 
     // 绑定Socket到端口
     ret = bind(serverFd, (struct sockaddr*)&servAddr, sizeof(servAddr));
-    ERROR_RETURN_F(&cppLog, ret, CppLog::ERROR, "bind失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(&cppLog, ret, CppLog::ERROR, "bind失败,errno[%d],error[%s].", errno, strerror(errno));
 
     // 开始监听
     const uint32_t LISTEN_BACKLog = 10;
     ret = listen(serverFd, LISTEN_BACKLog);
-    ERROR_RETURN_F(&cppLog, ret, CppLog::ERROR, "listen失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(&cppLog, ret, CppLog::ERROR, "listen失败,errno[%d],error[%s].", errno, strerror(errno));
 
     DEBUG_LOG("服务启动成功,监听端口[%u].", SERV_PORT);
     gServerStart = true;
@@ -642,7 +642,7 @@ int MultiThreadServer::CreateServerSocket()
 int MultiThreadServer::CreateEpollFd(int serverFd)
 {
     int epollFd = epoll_create(SERVER_EPOLL_SIZE);
-    CHECK_RETURN_F(&cppLog, epollFd >= 0, epollFd, CppLog::ERROR, "epoll_create失败,errno[%d],error[%s].", errno, strerror(errno));
+    CHECK_RETURN_FI(&cppLog, epollFd >= 0, epollFd, CppLog::ERROR, "epoll_create失败,errno[%d],error[%s].", errno, strerror(errno));
     UniqueFd uniqEpollFd(epollFd);
 
     // 将监听的端口加入到Epoll池管理
@@ -650,7 +650,7 @@ int MultiThreadServer::CreateEpollFd(int serverFd)
     ev.data.fd = serverFd;
     ev.events = EPOLLIN | EPOLLRDHUP;
     int32_t ret = epoll_ctl(epollFd, EPOLL_CTL_ADD, serverFd, &ev);
-    ERROR_RETURN_F(&cppLog, ret, CppLog::ERROR, "epoll_ctl失败,errno[%d],error[%s].", errno, strerror(errno));
+    RET_RETURN_FI(&cppLog, ret, CppLog::ERROR, "epoll_ctl失败,errno[%d],error[%s].", errno, strerror(errno));
 
     return uniqEpollFd.Release();
 }
@@ -665,11 +665,11 @@ int32_t MultiThreadServer::StartServer()
     sigaction(SIGPIPE, &sa, 0);
 
     int serverFd = CreateServerSocket();
-    CHECK_RETURN(&cppLog, serverFd >= 0, serverFd, CppLog::ERROR);
+    CHECK_RETURN_I(&cppLog, serverFd >= 0, serverFd, CppLog::ERROR);
     UniqueFd uniqServerFd(serverFd);
 
     int epollFd = CreateEpollFd(serverFd);
-    CHECK_RETURN(&cppLog, epollFd >= 0, epollFd, CppLog::ERROR);
+    CHECK_RETURN_I(&cppLog, epollFd >= 0, epollFd, CppLog::ERROR);
     UniqueFd uniqEpollFd(epollFd);
 
     epoll_event events[SERVER_EPOLL_SIZE];
@@ -691,8 +691,8 @@ int32_t MultiThreadServer::StartServer()
     {
         int fdsCount = epoll_wait(epollFd, events, ARRAY_SIZE(events), waitTime);
         waitTime = WAIT_TIME_MS;
-        CHECK_CONTINUE_F(&cppLog, fdsCount >= 0, fdsCount, CppLog::ERROR, "epoll_wait错误,errno[%d],error[%s].",
-                         errno, strerror(errno));
+        CHECK_CONTINUE_FI(&cppLog, fdsCount >= 0, fdsCount, CppLog::ERROR, "epoll_wait错误,errno[%d],error[%s].",
+                          errno, strerror(errno));
 
         if (fdsCount == 0)
         {
@@ -706,8 +706,8 @@ int32_t MultiThreadServer::StartServer()
         if (events[0].events & EPOLLIN)
         {
             int clientFd = accept(events[0].data.fd, (struct sockaddr*)&cliAddr, &addrLen);
-            CHECK_CONTINUE_F(&cppLog, clientFd >= 0, fdsCount, CppLog::ERROR, "accept错误,errno[%d],error[%s].",
-                             errno, strerror(errno));
+            CHECK_CONTINUE_FI(&cppLog, clientFd >= 0, fdsCount, CppLog::ERROR, "accept错误,errno[%d],error[%s].",
+                              errno, strerror(errno));
 
             // 设置数据链接非阻塞，测试结果表示对程序的性能没有明显影响。
 //          int flags = fcntl(clientFd, F_GETFL, 0);
@@ -924,7 +924,7 @@ const string PressCallZookeeperClient::GetSendData(uint32_t threadId, int fd)
     int rc;
     oarchive *oa = create_buffer_oarchive();
 
-    RequestHeader h = {get_xid(), ZOO_SETDATA_OP};
+    RequestHeader h = { get_xid(), ZOO_SETDATA_OP };
     struct SetDataRequest req;
     static const string setData = "123";
     req.path = (char *)"/a";
@@ -934,13 +934,13 @@ const string PressCallZookeeperClient::GetSendData(uint32_t threadId, int fd)
     rc = serialize_RequestHeader(oa, "header", &h);
     rc = serialize_SetDataRequest(oa, "req", &req);
 
-//     RequestHeader h = {get_xid(), ZOO_GETDATA_OP};
-//     GetDataRequest req = {(char*)"/a", false};
-//     rc = serialize_RequestHeader(oa, "header", &h);
-//     rc = serialize_GetDataRequest(oa, "req", &req);
+    //     RequestHeader h = {get_xid(), ZOO_GETDATA_OP};
+    //     GetDataRequest req = {(char*)"/a", false};
+    //     rc = serialize_RequestHeader(oa, "header", &h);
+    //     rc = serialize_GetDataRequest(oa, "req", &req);
 
-//     RequestHeader h = {PING_XID, ZOO_PING_OP};
-//     rc = serialize_RequestHeader(oa, "header", &h);
+    //     RequestHeader h = {PING_XID, ZOO_PING_OP};
+    //     rc = serialize_RequestHeader(oa, "header", &h);
 
     string buf(get_buffer(oa), get_buffer_len(oa));
     close_buffer_oarchive(&oa, 0);

@@ -18,7 +18,7 @@ void CppLog::LogMsg(const string &msg)
 {
     if (mLogFile.empty())
     {
-        cout << msg << endl;
+        cout << msg + "\n";
         return;
     }
 

@@ -51,7 +51,6 @@ STATIC_LIBS += ${STATIC_LIBS_DIR}/libpcre.a
 STATIC_LIBS += ${STATIC_LIBS_DIR}/libprotobuf.a
 #STATIC_LIBS += ${STATIC_LIBS_DIR}/libssl.a
 STATIC_LIBS += $(STATIC_LIBS_DIR)/libmysqlclient.a
-STATIC_LIBS += $(STATIC_LIBS_DIR)/libjsoncpp.a
 #STATIC_LIBS += $(STATIC_LIBS_DIR)/libmysqlpp.a
 #STATIC_LIBS += $(STATIC_LIBS_DIR)/libiconv.a
 STATIC_LIBS += $(STATIC_LIBS_DIR)/libzookeeper_mt.a
