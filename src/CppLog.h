@@ -104,19 +104,19 @@
 #define ERROR_RET_BREAK_I(cppLog, ret) RET_BREAK_I((cppLog), ret, CppLog::WARNN)
 
 // 检查，不符合条件则contine
-#define CHECK_CONTINUE_FI(cppLog, expr, ret, logLevel, format, ...) CHECK_OP_FI((cppLog), expr, ret, continue, logLevel, format, ##__VA_ARGS__)
+#define CHECK_CONTINUE_FI(cppLog, expr, logLevel, format, ...) CHECK_OP_FI((cppLog), expr, 0, continue, logLevel, format, ##__VA_ARGS__)
 #define RET_CONTINUE_FI(cppLog, ret, logLevel, format, ...) RET_OP_FI((cppLog), ret, continue, logLevel, format, ##__VA_ARGS__)
-#define CHECK_CONTINUE_I(cppLog, expr, ret, logLevel) CHECK_CONTINUE_FI((cppLog), expr, ret, logLevel, "")
+#define CHECK_CONTINUE_I(cppLog, expr, logLevel) CHECK_CONTINUE_FI((cppLog), expr, logLevel, "")
 #define RET_CONTINUE_I(cppLog, ret, logLevel) RET_CONTINUE_FI((cppLog), ret, logLevel, "")
 
-#define WARNN_CHECK_CONTINUE_FI(cppLog, expr, ret, format, ...) CHECK_CONTINUE_FI((cppLog), expr, ret, CppLog::WARNN, format, ...)
+#define WARNN_CHECK_CONTINUE_FI(cppLog, expr, format, ...) CHECK_CONTINUE_FI((cppLog), expr, 0, CppLog::WARNN, format, ...)
 #define WARNN_RET_CONTINUE_FI(cppLog, ret, format, ...) RET_CONTINUE_FI((cppLog), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define WARNN_CHECK_CONTINUE_I(cppLog, expr, ret) CHECK_CONTINUE_I((cppLog), expr, ret, CppLog::WARNN)
+#define WARNN_CHECK_CONTINUE_I(cppLog, expr) CHECK_CONTINUE_I((cppLog), expr, 0, CppLog::WARNN)
 #define WARNN_RET_CONTINUE_I(cppLog, ret) RET_CONTINUE_I((cppLog), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_CONTINUE_FI(cppLog, expr, ret, format, ...) CHECK_CONTINUE_FI((cppLog), expr, ret, CppLog::WARNN, format, ...)
+#define ERROR_CHECK_CONTINUE_FI(cppLog, expr, format, ...) CHECK_CONTINUE_FI((cppLog), expr, 0, CppLog::WARNN, format, ...)
 #define ERROR_RET_CONTINUE_FI(cppLog, ret, format, ...) RET_CONTINUE_FI((cppLog), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_CONTINUE_I(cppLog, expr, ret) CHECK_CONTINUE_I((cppLog), expr, ret, CppLog::WARNN)
+#define ERROR_CHECK_CONTINUE_I(cppLog, expr) CHECK_CONTINUE_I((cppLog), expr, 0, CppLog::WARNN)
 #define ERROR_RET_CONTINUE_I(cppLog, ret) RET_CONTINUE_I((cppLog), ret, CppLog::WARNN)
 
 /* 使用CPP_LOG_INSTANCE的版本 */
@@ -176,14 +176,14 @@
 #define ERROR_RET_BREAK(ret) RET_BREAK_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
 
 // 检查，不符合条件则contine
-#define CHECK_CONTINUE_F(expr, ret, logLevel, format, ...) CHECK_OP_FI((CPP_LOG_INSTANCE), expr, ret, continue, logLevel, format, ##__VA_ARGS__)
+#define CHECK_CONTINUE_F(expr, logLevel, format, ...) CHECK_OP_FI((CPP_LOG_INSTANCE), expr, 0, continue, logLevel, format, ##__VA_ARGS__)
 #define RET_CONTINUE_F(ret, logLevel, format, ...) RET_OP_FI((CPP_LOG_INSTANCE), ret, continue, logLevel, format, ##__VA_ARGS__)
-#define CHECK_CONTINUE(expr, ret, logLevel) CHECK_CONTINUE_FI((CPP_LOG_INSTANCE), expr, ret, logLevel, "")
+#define CHECK_CONTINUE(expr, logLevel) CHECK_CONTINUE_FI((CPP_LOG_INSTANCE), expr, 0, logLevel, "")
 #define RET_CONTINUE(ret, logLevel) RET_CONTINUE_FI((CPP_LOG_INSTANCE), ret, logLevel, "")
 
-#define WARNN_CHECK_CONTINUE_F(expr, ret, format, ...) CHECK_CONTINUE_FI((CPP_LOG_INSTANCE), expr, ret, CppLog::WARNN, format, ...)
+#define WARNN_CHECK_CONTINUE_F(expr, format, ...) CHECK_CONTINUE_FI((CPP_LOG_INSTANCE), expr, 0, CppLog::WARNN, format, ...)
 #define WARNN_RET_CONTINUE_F(ret, format, ...) RET_CONTINUE_FI((CPP_LOG_INSTANCE), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define WARNN_CHECK_CONTINUE(expr, ret) CHECK_CONTINUE_I((CPP_LOG_INSTANCE), expr, ret, CppLog::WARNN)
+#define WARNN_CHECK_CONTINUE(expr) CHECK_CONTINUE_I((CPP_LOG_INSTANCE), expr, 0, CppLog::WARNN)
 #define WARNN_RET_CONTINUE(ret) RET_CONTINUE_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
 
 #define ERROR_CHECK_CONTINUE_F(expr, ret, format, ...) CHECK_CONTINUE_FI((CPP_LOG_INSTANCE), expr, ret, CppLog::WARNN, format, ...)

@@ -256,13 +256,13 @@ const string CppString::ToString(const T &value, int32_t divcision)
 template <class T>
 T CppString::FromString(const string &value)
 {
-    if (value.length() == 0)
+    T result{};
+    if (value.empty())
     {
-        return  0;
+        return result;
     }
 
     stringstream ss(value);
-    T result;
     ss >> result;
 
     return result;

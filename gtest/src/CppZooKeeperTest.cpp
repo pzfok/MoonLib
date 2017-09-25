@@ -80,7 +80,7 @@ void DisableZkLink()
 void EnableZkLink()
 {
     int32_t ret;
-    (void)CppSystem::ExcuteCommand("iptables -I INPUT -i lo -p tcp --dport 2181 -j ACCEPT;iptables  -I OUTPUT -o lo -p tcp --sport 2181 -j ACCEPT",ret);
+    (void)CppSystem::ExcuteCommand("iptables -I INPUT -i lo -p tcp --dport 2181 -j ACCEPT;iptables  -I OUTPUT -o lo -p tcp --sport 2181 -j ACCEPT", ret);
 }
 
 #define ASYNC_BEGIN(count) done = count
@@ -320,6 +320,11 @@ TEST(ZooKeeper, DISABLED_ZkManagerSyncTest)
             ASSERT_TRUE(it->first == it->second.value);
         }
     }
+
+    INFOR_LOG("Multi删除不存在的节点.");
+    multi_ops = move(zk_manager.CreateMultiOps());
+    multi_ops.AddDeleteOp("/path_not_exists", -1);
+    ASSERT_EQ(ZNONODE, zk_manager.Multi(multi_ops, results));
 }
 
 // ZookeeperManager异步API测试

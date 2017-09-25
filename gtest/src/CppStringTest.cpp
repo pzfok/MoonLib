@@ -24,6 +24,12 @@ TEST(CppString, CppStringFromString)
     string strValue("123");
     uint32_t intValue = CppString::FromString<uint32_t>(strValue);
     EXPECT_EQ(123u, intValue);
+    EXPECT_EQ(0, CppString::FromString<uint32_t>(""));
+    EXPECT_EQ(0, CppString::FromString<int32_t>(""));
+    EXPECT_EQ(0, CppString::FromString<uint64_t>(""));
+    EXPECT_EQ(0, CppString::FromString<int64_t>(""));
+    EXPECT_FLOAT_EQ(0, CppString::FromString<double>(""));
+    EXPECT_FLOAT_EQ(1.333333, CppString::FromString<double>("1.333333"));
 }
 
 TEST(CppString, RemoveAngleTest)

@@ -313,7 +313,7 @@ void MultiThreadClientBase::ThreadFunc(uint32_t threadId)
     for (uint32_t i = 0; i < mClientCountPerThread; ++i)
     {
         ev.data.fd = ConnectServer();
-        CHECK_CONTINUE_I(mpCppLog, ev.data.fd >= 0, ev.data.fd, CppLog::ERROR);
+        CHECK_CONTINUE_I(mpCppLog, ev.data.fd >= 0, CppLog::ERROR);
         mEpollManager.AddOrModFd(ev.data.fd, ev);
         mClientDatas[threadId][ev.data.fd] = MakeNewClientData();
         mClientDatas[threadId][ev.data.fd]->uniqueFd.Reset(ev.data.fd);

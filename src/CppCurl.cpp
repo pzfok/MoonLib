@@ -4,6 +4,11 @@
 
 #include <iostream>
 #include <sstream>
+#include <mutex>
+#include <thread>
+#include <atomic>
+
+#include <openssl/crypto.h> 
 
 #include "CppString.h"
 #include "CppLog.h"
@@ -13,6 +18,53 @@ using namespace std;
 
 namespace CppCurlInner
 {
+
+/* we have this global to let the callback get easy access to it */
+static mutex *sslLocks = NULL;
+
+static void SslLockCallback(int mode, int type, const char *file, int line)
+{
+    (void)file;
+    (void)line;
+    if (mode & CRYPTO_LOCK)
+    {
+        sslLocks[type].lock();
+    }
+    else
+    {
+        sslLocks[type].unlock();
+    }
+}
+
+static unsigned long GetThreadId()
+{
+    unsigned long ret;
+
+    stringstream ss;
+    ss << this_thread::get_id();
+    ss >> ret;
+
+    return ret;
+}
+
+static void InitLock(void)
+{
+    sslLocks = new mutex[CRYPTO_num_locks()];
+    CRYPTO_set_id_callback(GetThreadId);
+    CRYPTO_set_locking_callback(SslLockCallback);
+}
+
+static void KillLock(void)
+{
+    CRYPTO_set_locking_callback(NULL);
+    for (int32_t i = CRYPTO_num_locks(); i >= 0; --i)
+    {
+        sslLocks[i].unlock();
+    }
+
+    delete[] sslLocks;
+}
+
 //************************************
 // Describe:  将libcurl读取的数据写入(string *)content
 // Parameter: void * buffer     CURL读取到的数据
@@ -71,6 +123,7 @@ string CppCurl::Get(const string &url, const string &cookiesFile,
                     const vector<string> &otherHeaders, const string &proxy,
                     int32_t timeOut, CURL *curl)throw(CppException)
 {
+    Init();
     stringstream result;
     char errorMsg[CURL_ERROR_SIZE];
     *errorMsg = '\0';
@@ -156,6 +209,7 @@ void CppCurl::Get(const string &url, const string &localPath,
                   const string &cookiesFile /*= ""*/, const vector<string> &otherHeaders /*= vector<string>()*/,
                   const string &proxy /*= ""*/, int32_t timeOut /*= 10*/, CURL *curl) throw(CppException)
 {
+    Init();
     ofstream ofs(localPath.c_str(), ios::out);
     if (!ofs)
     {
@@ -242,6 +296,7 @@ void CppCurl::Get(const string &url, const string &localPath,
 
 string CppCurl::Post(const string &url, const string &data, const string &cookiesFile, const vector<string> &otherHeaders, const string &proxy, int32_t timeOut)throw(CppException)
 {
+    Init();
     CURL *curl = NULL;
     stringstream result;
     char errorMsg[CURL_ERROR_SIZE];
@@ -323,6 +378,7 @@ string CppCurl::Post(const string &url, const string &data, const string &cookie
 
 string CppCurl::PostForm(const string &url, const map<string, string> &formData, const string &cookiesFile /*= ""*/, const vector<string> &otherHeaders /*= vector<string>()*/, const string &proxy, int32_t timeOut)throw(CppException)
 {
+    Init();
     CURL *curl = NULL;
     curl_httppost *post = NULL;
     stringstream result;
@@ -448,6 +504,7 @@ string CppCurl::PostFileData(const string &url, const map<string, string> &formD
                              const vector<string> &otherHeaders /*= vector<string>()*/,
                              const string &proxy, int32_t timeOut)throw(CppException)
 {
+    Init();
     CURL *curl = NULL;
     curl_httppost *post = NULL;
     stringstream result;
@@ -571,6 +628,7 @@ string CppCurl::PostFile(const string &url, const map<string, string> &formData,
                          const vector<string> &otherHeaders /*= vector<string>()*/,
                          const string &proxy, int32_t timeOut)throw(CppException)
 {
+    Init();
     CURL *curl = NULL;
     curl_httppost *post = NULL;
     stringstream result;
@@ -722,12 +780,19 @@ string CppCurl::HtmlDecode(const string &data)
 
 void CppCurl::Init(long flags)throw(CppException)
 {
-    CURLcode ret = curl_global_init(flags);
+    static atomic_bool have_init{ false };
+    if (have_init.exchange(true))
+    {
+        return;
+    }
 
+    CURLcode ret = curl_global_init(flags);
     if (ret != CURLE_OK)
     {
         THROW("curl_global_init错误,ret=%d", ret);
     }
+
+    InitLock();
 }
 
 string CppCurl::UrlEncode(const string &data)

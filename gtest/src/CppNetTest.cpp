@@ -691,7 +691,7 @@ int32_t MultiThreadServer::StartServer()
     {
         int fdsCount = epoll_wait(epollFd, events, ARRAY_SIZE(events), waitTime);
         waitTime = WAIT_TIME_MS;
-        CHECK_CONTINUE_FI(&cppLog, fdsCount >= 0, fdsCount, CppLog::ERROR, "epoll_wait错误,errno[%d],error[%s].",
+        CHECK_CONTINUE_FI(&cppLog, fdsCount >= 0, CppLog::ERROR, "epoll_wait错误,errno[%d],error[%s].",
                           errno, strerror(errno));
 
         if (fdsCount == 0)
@@ -706,7 +706,7 @@ int32_t MultiThreadServer::StartServer()
         if (events[0].events & EPOLLIN)
         {
             int clientFd = accept(events[0].data.fd, (struct sockaddr*)&cliAddr, &addrLen);
-            CHECK_CONTINUE_FI(&cppLog, clientFd >= 0, fdsCount, CppLog::ERROR, "accept错误,errno[%d],error[%s].",
+            CHECK_CONTINUE_FI(&cppLog, clientFd >= 0, CppLog::ERROR, "accept错误,errno[%d],error[%s].",
                               errno, strerror(errno));
 
             // 设置数据链接非阻塞，测试结果表示对程序的性能没有明显影响。
