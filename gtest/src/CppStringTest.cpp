@@ -198,3 +198,13 @@ TEST(CppString, Hex2Str)
     EXPECT_EQ("5a3233343536373839", CppString::Hex2Str(buf));
     EXPECT_EQ("5A3233343536373839", CppString::Hex2Str(buf, true));
 }
+
+TEST(CppString, EditDistance)
+{
+    EXPECT_EQ(3, CppString::EditDistance("", "asd"));
+    EXPECT_EQ(3, CppString::EditDistance("asd", ""));
+    EXPECT_EQ(0, CppString::EditDistance("", ""));
+    EXPECT_EQ(0, CppString::EditDistance("asd", "asd"));
+    EXPECT_EQ(3, CppString::EditDistance("coffee", "cafe"));
+    EXPECT_EQ(3, CppString::EditDistance("cafe", "coffee"));
+}

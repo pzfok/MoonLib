@@ -8,6 +8,7 @@
 #include <cerrno>
 #include <cstring>
 #include <cstdlib>
+#include <numeric>
 
 using namespace std;
 
@@ -473,4 +474,63 @@ int32_t CppString::Gb2312ToUtf8(const string &gb2312Src, string &utf8Dst)
     }
 
     return CodeConv(cd, gb2312Src, utf8Dst);
+}
+
+uint32_t CppString::EditDistance(const string &str1, const string &str2)
+{
+    // 计算方法：
+    // http://www.cnblogs.com/ivanyb/archive/2011/11/25/2263356.html
+    // https://baike.baidu.com/item/%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB
+
+    if (str1.empty())
+    {
+        return str2.length();
+    }
+
+    if (str2.empty())
+    {
+        return str1.length();
+    }
+
+    // 计算矩阵,str1是左侧竖着排列，str2是上方横着排列
+    vector<vector<uint32_t>> mat(str1.length() + 1, vector<uint32_t>(str2.length() + 1, 0));
+
+    // 初始化矩阵
+    iota(mat[0].begin(), mat[0].end(), 0);
+    for (uint32_t r = 1; r <= str1.length(); ++r)
+    {
+        *mat[r].begin() = r;
+    }
+
+    // 开始填充矩阵剩下的部分
+    uint32_t min_value;
+    for (uint32_t c = 1; c <= str2.length(); ++c)
+    {
+        for (uint32_t r = 1; r <= str1.length(); ++r)
+        {
+            min_value = mat[r - 1][c - 1] + ((str1[r - 1] == str2[c - 1]) ? 0 : 1);
+            if (min_value > mat[r - 1][c] + 1)
+            {
+                min_value = mat[r - 1][c] + 1;
+            }
+
+            if (min_value > mat[r][c - 1] + 1)
+            {
+                min_value = mat[r][c - 1] + 1;
+            }
+
+            mat[r][c] = min_value;
+        }
+    }
+
+    //     for (uint32_t r = 0; r <= str1.length(); ++r)
+    //     {
+    //         for (uint32_t c = 0; c <= str2.length(); ++c)
+    //         {
+    //             cout << mat[r][c] << " ";
+    //         }
+    //         cout << endl;
+    //     }
+
+    return mat[str1.length()][str2.length()];
 }

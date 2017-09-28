@@ -54,16 +54,16 @@ static void InitLock(void)
     CRYPTO_set_locking_callback(SslLockCallback);
 }
 
-static void KillLock(void)
-{
-    CRYPTO_set_locking_callback(NULL);
-    for (int32_t i = CRYPTO_num_locks(); i >= 0; --i)
-    {
-        sslLocks[i].unlock();
-    }
-
-    delete[] sslLocks;
-}
+// static void KillLock(void)
+// {
+//     CRYPTO_set_locking_callback(NULL);
+//     for (int32_t i = CRYPTO_num_locks(); i >= 0; --i)
+//     {
+//         sslLocks[i].unlock();
+//     }
+// 
+//     delete[] sslLocks;
+// }
 
 //************************************
 // Describe:  将libcurl读取的数据写入(string *)content

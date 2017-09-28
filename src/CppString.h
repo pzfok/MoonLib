@@ -172,7 +172,7 @@ public:
     // Describe:  将字符串中的大写字母转小写
     // Parameter: string str
     // Returns:   std::string
-    // Author:    moontan
+    // Author:    moon
     //************************************
     static string ToLower(string str);
 
@@ -180,7 +180,7 @@ public:
     // Describe:  将字符串中的小写字母转大写
     // Parameter: string str
     // Returns:   std::string
-    // Author:    moontan
+    // Author:    moon
     //************************************
     static string ToUpper(string str);
 
@@ -206,7 +206,7 @@ public:
     // Describe:  将数字转换为16进制字符
     // Parameter: uint8_t c
     // Returns:   char
-    // Author:    moontan
+    // Author:    moon
     //************************************
     static char Hex2Char(uint8_t c, bool upCase = false);
 
@@ -215,7 +215,7 @@ public:
     // Parameter: const string & str
     // Parameter: bool upCase
     // Returns:   string
-    // Author:    moontan
+    // Author:    moon
     //************************************
     static string Hex2Str(const string &str, bool upCase = false);
 
@@ -224,7 +224,7 @@ public:
      * @param   const string & utf8Src
      * @param   string & gb2312Dst
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     static int32_t Utf8ToGb2312(const string &utf8Src, string &gb2312Dst);
 
@@ -233,9 +233,17 @@ public:
      * @param   const string & gb2312Src
      * @param   string & utf8Dst
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     static int32_t Gb2312ToUtf8(const string &gb2312Src, string &utf8Dst);
+
+    // 获得两个字符串的编辑距离
+    //
+    // @param 	const string & str1
+    // @param 	const string & str2
+    // @retval 	uint32_t
+    // @author 	moon
+    static uint32_t EditDistance(const string &str1, const string &str2);
 };
 
 template <class T>
