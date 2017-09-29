@@ -207,4 +207,5 @@ TEST(CppString, EditDistance)
     EXPECT_EQ(0, CppString::EditDistance("asd", "asd"));
     EXPECT_EQ(3, CppString::EditDistance("coffee", "cafe"));
     EXPECT_EQ(3, CppString::EditDistance("cafe", "coffee"));
+    EXPECT_EQ(4, CppString::EditDistance("cafe", "coffeee"));
 }

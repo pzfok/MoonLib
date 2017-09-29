@@ -491,7 +491,7 @@ uint32_t CppString::EditDistance(const string &str1, const string &str2)
     {
         return str1.length();
     }
-
+    /*
     // 计算矩阵,str1是左侧竖着排列，str2是上方横着排列
     vector<vector<uint32_t>> mat(str1.length() + 1, vector<uint32_t>(str2.length() + 1, 0));
 
@@ -533,4 +533,45 @@ uint32_t CppString::EditDistance(const string &str1, const string &str2)
     //     }
 
     return mat[str1.length()][str2.length()];
+    */
+
+    // 这里只记录矩阵的一列，因为一列用过之后就再也没用了，并且和百度百科里不同的是，值从1开始，因为总是需要+1
+    // 左上角的，如果行列字符相同，就-1，不同就不变
+    vector<uint32_t> mat_col(str1.length() + 1, 0);
+
+    // 初始化矩阵
+    iota(mat_col.begin(), mat_col.end(), 1);
+
+    uint32_t min_value;
+    uint32_t last_left_up_value;        // 上次的左上方的值
+    for (uint32_t c = 1; c <= str2.length(); ++c)
+    {
+        // 记录并且更新这一列第一行的值
+        last_left_up_value = mat_col[0]++;
+
+        for (uint32_t r = 1; r <= str1.length(); ++r)
+        {
+            // 取左上方的值
+            min_value = last_left_up_value - ((str1[r - 1] == str2[c - 1]) ? 1 : 0);
+
+            // 取上方的值
+            if (min_value > mat_col[r - 1])
+            {
+                min_value = mat_col[r - 1];
+            }
+
+            // 取左方的值
+            if (min_value > mat_col[r])
+            {
+                min_value = mat_col[r];
+            }
+
+            // 存储到当前位置，值+1
+            last_left_up_value = mat_col[r];
+            mat_col[r] = min_value + 1;
+        }
+    }
+
+    // 因为所有存储的值都+1了，所以实际值需要-1
+    return *mat_col.rbegin() - 1;
 }
