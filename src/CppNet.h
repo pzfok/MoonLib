@@ -122,6 +122,12 @@ public:
     }
 
     //static bool NetIsOK(vector<IpPort> &ipPort);
+
+    // 获得外网IP
+    //
+    // @retval  string
+    // @author  moon
+    static string GetInternetIp();
 };
 
 // socket管理，自动释放
@@ -313,6 +319,7 @@ protected:
     vector<std::unordered_map<int, shared_ptr<PressCallClientDataBase>>> mClientDatas; // 线程ID->map<fd,用户数据>
 };
 
+// Server端示例见CppNetTest.cpp
 class CppEpollManager
 {
 public:
@@ -355,7 +362,7 @@ public:
      */
     void ReleaseEventsMemory();
 
-protected:
+//protected:
     virtual int32_t ProcWrite(epoll_event &inevent, function<int32_t(epoll_event &inevent)> &writeFunc) throw(CppException);
 
     virtual int32_t ProcRead(epoll_event &inevent, function<int32_t(epoll_event &inevent)> &readFunc) throw(CppException);

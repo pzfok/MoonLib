@@ -170,9 +170,18 @@ string CppCurl::Get(const string &url, const string &cookiesFile,
             curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookiesFile.c_str());
         }
 
-        if (proxy.length() != 0)
+        if (!proxy.empty())
         {
-            curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            // socks5代理
+            if (proxy.find("socks5://") == 0)
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.substr(9).c_str());
+            }
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            }
         }
 
         if (timeOut > 0)
@@ -261,9 +270,18 @@ void CppCurl::Get(const string &url, const string &localPath,
             curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookiesFile.c_str());
         }
 
-        if (proxy.length() != 0)
+        if (!proxy.empty())
         {
-            curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            // socks5代理
+            if (proxy.find("socks5://") == 0)
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.substr(9).c_str());
+            }
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            }
         }
 
         if (timeOut > 0)
@@ -341,9 +359,18 @@ string CppCurl::Post(const string &url, const string &data, const string &cookie
             curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookiesFile.c_str());
         }
 
-        if (proxy.length() != 0)
+        if (!proxy.empty())
         {
-            curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            // socks5代理
+            if (proxy.find("socks5://") == 0)
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.substr(9).c_str());
+            }
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            }
         }
 
         if (timeOut > 0)
@@ -447,9 +474,18 @@ string CppCurl::PostForm(const string &url, const map<string, string> &formData,
             curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookiesFile.c_str());
         }
 
-        if (proxy.length() != 0)
+        if (!proxy.empty())
         {
-            curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            // socks5代理
+            if (proxy.find("socks5://") == 0)
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.substr(9).c_str());
+            }
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            }
         }
 
         if (timeOut > 0)
@@ -571,9 +607,18 @@ string CppCurl::PostFileData(const string &url, const map<string, string> &formD
             curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookiesFile.c_str());
         }
 
-        if (proxy.length() != 0)
+        if (!proxy.empty())
         {
-            curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            // socks5代理
+            if (proxy.find("socks5://") == 0)
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.substr(9).c_str());
+            }
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            }
         }
 
         if (timeOut > 0)
@@ -701,9 +746,18 @@ string CppCurl::PostFile(const string &url, const map<string, string> &formData,
             curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookiesFile.c_str());
         }
 
-        if (proxy.length() != 0)
+        if (!proxy.empty())
         {
-            curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            // socks5代理
+            if (proxy.find("socks5://") == 0)
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.substr(9).c_str());
+            }
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            }
         }
 
         if (timeOut > 0)

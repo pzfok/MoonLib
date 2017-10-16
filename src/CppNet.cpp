@@ -6,6 +6,8 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 
+#include "CppCurl.h"
+
 #include <list>
 #include <thread>
 
@@ -29,6 +31,11 @@ uint32_t CppNet::StrToNetIp(const string &ipStr)
     }
 
     THROW("StrToNetIp error,ip=%s", ipStr.c_str());
+}
+
+string CppNet::GetInternetIp()
+{
+    return CppCurl::Get("ns1.dnspod.net:6666");
 }
 
 // bool CppNet::NetIsOK( vector<IpPort> &ipPort )
@@ -135,9 +142,16 @@ void CppEpollManager::Wait(function<int32_t(epoll_event &inevent)> &readFunc,
         {
             mEvents.resize(mFds.size());
         }
+
+        if (mEvents.empty())
+        {
+            mEvents.resize(1);
+        }
     }
 
     int32_t fdsCount = epoll_wait(mEpollFd, &mEvents[0], mEvents.size(), timeOutMs);
+    CHECK_THROW_F(fdsCount >= 0, "epoll_wait失败,ret[%d],errno[%d],error[%s].", fdsCount, errno, strerror(errno));
+
     int32_t ret = 0;
 
     for (int32_t i = 0; i < fdsCount; ++i)

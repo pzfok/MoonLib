@@ -35,15 +35,27 @@ public:
      */
     void Del(const T &t);
 
-    CppLRU(uint32_t maxCap) :mMaxCap(maxCap)
+    // 清空所有元素
+    //
+    // @retval  void
+    // @author  moon
+    void Clear();
+
+    CppLRU(uint32_t maxCap = 100) :mMaxCap(maxCap)
     {
     }
 
-private:
     std::unordered_set<T> mSet;
     std::list<T> mList;
     uint32_t mMaxCap;       // 最大容量
 };
+
+template <class T>
+void CppLRU<T>::Clear()
+{
+    mSet.clear();
+    mList.clear();
+}
 
 template <class T>
 void CppLRU<T>::Del(const T &t)

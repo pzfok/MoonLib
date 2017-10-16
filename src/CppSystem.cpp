@@ -1,6 +1,9 @@
 #include "CppSystem.h"
 
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/param.h>
+#include <sys/stat.h>
 
 #include <CppFile.h>
 
@@ -75,4 +78,54 @@ uint32_t CppSystem::GetCpuNum()
     }
 
     return CppString::FromString<uint32_t>(cpuLineSplitResult[1]) + 1;
+}
+
+void CppSystem::InitDaemon()
+{
+    int pid;
+    int i;
+    if ((pid = fork()))
+    {
+        // 是父进程,结束父进程
+        exit(0);
+    }
+    else if (pid < 0)
+    {
+        // fork失败,退出
+        exit(-1);
+    }
+    // 是第一子进程,后台继续执行
+
+    // 第一子进程成为新的会话组长和进程组长
+    setsid();
+
+    // 并与控制终端分离
+    if ((pid = fork()))
+    {
+        // 是第一子进程,结束第一子进程
+        exit(0);
+    }
+    else if (pid < 0)
+    {
+        // fork失败,退出
+        exit(-1);
+    }
+
+    // 是第二子进程,继续
+    // 第二子进程不再是会话组长
+    // 关闭打开的文件描述符
+    for (i = 0; i < NOFILE; ++i)
+    {
+        close(i);
+    }
+
+    // 改变工作目录到/tmp
+    if (chdir("/tmp"))
+    {
+        int32_t errnoBak = errno;
+        THROW("chdir失败,errno[%d],err[%s].", errnoBak, strerror(errnoBak));
+    }
+
+    // 重设文件创建掩模
+    umask(0);
 }

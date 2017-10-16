@@ -34,6 +34,12 @@ public:
      * @author  moon
      */
     static uint32_t GetCpuNum();
+
+    // 成为守护进程
+    //
+    // @retval  void
+    // @author  moon
+    static void InitDaemon();
 };
 
 #endif
