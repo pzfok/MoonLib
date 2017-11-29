@@ -21,6 +21,7 @@
 * CppSystem：系统相关
 * CppTime：时间相关
 * CppTinyxml：TinyXML的封装
+* CppThread：线程相关封装（比如线程池）
 * CppZookeeper：Zookeeper C语言API的C++封装
 
 ## 使用方法
