@@ -24,7 +24,7 @@ public:
     // Describe:  计算文件的MD5值
     // Parameter: const string & path   文件路径
     // Returns:   string                返回MD5的可读字符串格式
-    // Author:    moontan
+    // Author:    moon
     //************************************
     static string Md5File(const string &path)throw(CppException);
 

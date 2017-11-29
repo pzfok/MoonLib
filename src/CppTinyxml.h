@@ -22,7 +22,7 @@ public:
     // Parameter: const string & name
     // Parameter: bool isThrow      如果为true并且获得失败，则抛异常，否则返回""
     // Returns:   string            获得的节点文字
-    // Author:    moontan
+    // Author:    moon
     //************************************
     static string GetXmlText(const TiXmlNode *xmlNodeParant, const string &name, bool emptyThrow = false) throw(CppException);
 

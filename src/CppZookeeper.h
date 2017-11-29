@@ -53,7 +53,7 @@ public:
      *
      * @param   ZookeeprerManager * p_zk_manager    填入mp_zk_manager可以使用相对路径，为NULL时不能使用相对路径
      * @retval
-     * @author  moontan
+     * @author  moon
      */
     MultiOps(ZookeeperManager *p_zk_manager = NULL) :mp_zk_manager(p_zk_manager)
     {
@@ -207,7 +207,7 @@ public:
      *
      * @param   const std::string & config_file_path
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     int32_t InitFromFile(const std::string &config_file_path, const clientid_t *client_id = NULL);
 
@@ -216,7 +216,7 @@ public:
      * @param   const std::string & hosts       格式：ip:port,ip:port
      * @param   const std::string & root_path   根节点必须为有效路径，为了支持路径填写相对或者绝对路径
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     int32_t Init(const std::string &hosts, const std::string &root_path = "/", const clientid_t *client_id = NULL);
 
@@ -229,14 +229,14 @@ public:
      * @param   int32_t recv_timeout_ms
      * @param   uint32_t conn_timeout_ms                            连接超时时间，为0表示永久等待
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     int32_t Connect(std::shared_ptr<WatcherFunType> global_watcher_fun, int32_t recv_timeout_ms, uint32_t conn_timeout_ms = 30000);
 
     /** 获得ClientID
      *
      * @retval  const zookeeper::clientid_t *
-     * @author  moontan
+     * @author  moon
      */
     const clientid_t *GetClientID()
     {
@@ -247,7 +247,7 @@ public:
      *  阻塞操作
      *
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     int32_t Reconnect();
 
@@ -320,7 +320,7 @@ public:
      *
      * @param   const std::string & path
      * @retval  const std::string
-     * @author  moontan
+     * @author  moon
      */
     const std::string ChangeToAbsPath(const std::string &path);
 
@@ -330,7 +330,7 @@ public:
      *
      * @param   const std::string & path
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     int32_t CreatePathRecursion(const std::string &path);
 
@@ -338,7 +338,7 @@ public:
      *
      * @param   const std::string & path
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     int32_t DeletePathRecursion(const std::string &path);
 
@@ -349,7 +349,7 @@ public:
      * @param   ValueStat> & children_value
      * @param   uint32_t max_value_size         由于获得节点内容需要预先分配内存，这个值表示每个Value预先分配内存的大小
      * @retval  int32_t
-     * @author  moontan
+     * @author  moon
      */
     int32_t GetChildrenValue(const std::string &path, std::map<std::string, ValueStat> &children_value,
                              uint32_t max_value_size = 2048);
@@ -384,7 +384,7 @@ protected:
      * @param   const std::vector<zoo_op> & multi_ops
      * @param   const std::vector<zoo_op_result_t> & multi_result
      * @retval  void
-     * @author  moontan
+     * @author  moon
      */
     void ProcMultiEphemeralNode(const std::vector<zoo_op> &multi_ops, const std::vector<zoo_op_result_t> &multi_result);
 
@@ -392,7 +392,7 @@ protected:
      *
      * @param   ZookeeperCtx & context
      * @retval  void 
-     * @author  moontan
+     * @author  moon
      */
     void ProcAsyncWatcher(ZookeeperCtx &context);
 
@@ -402,7 +402,7 @@ protected:
      * @param   const char * abs_path
      * @param   void * p_zookeeper_context
      * @retval  void
-     * @author  moontan
+     * @author  moon
      */
     void DeleteWatcher(int type, const char *abs_path, void *p_zookeeper_context);
 

@@ -116,8 +116,8 @@ public:
     // Returns:   string
     // Author:    moon
     //************************************
-    static string TrimLeft(string str, const string &trimStr, int32_t times = 1);
-    static string TrimLeft(string str, const vector<string> &trimStrs, int32_t times = 1);
+    static string TrimLeft(string str, const string &trimStr, int32_t times = -1);
+    static string TrimLeft(string str, const vector<string> &trimStrs, int32_t times = -1);
 
     //************************************
     // Describe:  剔除字符串左边的不可打印字符
@@ -126,7 +126,7 @@ public:
     // Returns:   string
     // Author:    moon
     //************************************
-    static string TrimLeft(const string &str, int32_t times = 1);
+    static string TrimLeft(const string &str, int32_t times = -1);
 
     //************************************
     // Describe:  剔除字符串右边的整个字符串
@@ -136,8 +136,8 @@ public:
     // Returns:   string
     // Author:    moon
     //************************************
-    static string TrimRight(string str, const string &trimStr, int32_t times = 1);
-    static string TrimRight(string str, const vector<string> &trimStrs, int32_t times = 1);
+    static string TrimRight(string str, const string &trimStr, int32_t times = -1);
+    static string TrimRight(string str, const vector<string> &trimStrs, int32_t times = -1);
 
     //************************************
     // Describe:  剔除字符串右边的不可打印字符
@@ -146,7 +146,7 @@ public:
     // Returns:   string
     // Author:    moon
     //************************************
-    static string TrimRight(const string &str, int32_t times = 1);
+    static string TrimRight(const string &str, int32_t times = -1);
 
     //************************************
     // Describe:  剔除字符串两边的整个字符串
@@ -156,17 +156,17 @@ public:
     // Returns:   string
     // Author:    moon
     //************************************
-    static string Trim(string str, const string &trimStr, int32_t times = 1);
-    static string Trim(string str, const vector<string> &trimStrs, int32_t times = 1);
+    static string Trim(string str, const string &trimStr, int32_t times = -1);
+    static string Trim(string str, const vector<string> &trimStrs, int32_t times = -1);
 
     //************************************
     // Describe:  剔除字符串两边的不可打印字符
     // Parameter: string str
-    // Parameter: int32_t times             剔除字符串的次数,默认为1,-1表示一直替换下去直到不可替换
+    // Parameter: int32_t times             剔除字符串的次数,默认为-1,-1表示一直替换下去直到不可替换
     // Returns:   string
     // Author:    moon
     //************************************
-    static string Trim(string str, int32_t times = 1);
+    static string Trim(string str, int32_t times = -1);
 
     //************************************
     // Describe:  将字符串中的大写字母转小写

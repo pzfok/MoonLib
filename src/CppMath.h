@@ -48,7 +48,7 @@ public:
     // Describe:  判断一个数是否是素数
     // Parameter: uint32_t num      要判断的数
     // Returns:   bool              是素数返回true,否则返回false
-    // Author:    moontan
+    // Author:    moon
     //************************************
     static bool IsPrime(uint32_t num);
 
@@ -113,7 +113,7 @@ public:
      * @param   uint32_t n
      * @param   uint32_t cacheSize
      * @retval  uint32_t
-     * @author  moontan
+     * @author  moon
      */
     static uint32_t FactorialWithCache(uint32_t n, uint32_t cacheSize = 10000);
 
@@ -132,7 +132,7 @@ public:
      * @param   uint32_t begin
      * @param   uint32_t end        为0表示不设置范围
      * @retval  uint32_t
-     * @author  moontan
+     * @author  moon
      */
     static uint32_t Random(uint32_t begin = 0, uint32_t end = 0);
 
@@ -141,7 +141,7 @@ public:
      * @param   uint32_t num1
      * @param   uint32_t num2
      * @retval  uint32_t        如果num1或者num2其中至少有一个为0，则返回0，否则返回两数的最大公约数
-     * @author  moontan
+     * @author  moon
      */
     template<class NumberType>
     static NumberType GCD(NumberType num1, NumberType num2);

@@ -17,7 +17,7 @@ public:
      *
      * @param   const string & cmd
      * @retval  string
-     * @author  moontan
+     * @author  moon
      */
     static string ExcuteCommand(const string &cmd, int32_t &ret);
 

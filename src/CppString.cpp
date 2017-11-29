@@ -9,6 +9,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <numeric>
+#include <algorithm>
 
 using namespace std;
 
@@ -214,7 +215,7 @@ string CppString::TrimLeft(string str, const string &trimStr, int32_t times /*= 
 {
     while (times == -1 || times-- > 0)
     {
-        if (str.find(trimStr) == 0)
+        if (!trimStr.empty() && str.find(trimStr) == 0)
         {
             str = str.substr(trimStr.length());
         }
@@ -227,6 +228,8 @@ string CppString::TrimLeft(string str, const string &trimStr, int32_t times /*= 
     return str;
 }
 
+static const vector<char> WHITESPACES{0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x20, 0};
+
 string CppString::TrimLeft(string str, const vector<string> &trimStrs, int32_t times /*= 1*/)
 {
     bool notFound;
@@ -237,7 +240,7 @@ string CppString::TrimLeft(string str, const vector<string> &trimStrs, int32_t t
 
         for (vector<string>::const_iterator it = trimStrs.begin(); it != trimStrs.end(); ++it)
         {
-            if (str.find(*it) == 0)
+            if (!it->empty() && str.find(*it) == 0)
             {
                 notFound = false;
                 str = str.substr(it->length());
@@ -259,7 +262,7 @@ string CppString::TrimLeft(const string &str, int32_t times /*= 1*/)
     uint32_t i = 0;
     for (; i < str.size() && (times == -1 || static_cast<int32_t>(i) < times); ++i)
     {
-        if (iswprint(str[i]) && !iswspace(str[i]))
+        if (find(WHITESPACES.begin(),WHITESPACES.end(),str[i]) == WHITESPACES.end())
         {
             break;
         }
@@ -274,6 +277,11 @@ string CppString::TrimRight(string str, const string &trimStr, int32_t times /*=
 
     while (times == -1 || times-- > 0)
     {
+        if (trimStr.empty())
+        {
+            break;
+        }
+
         pos = str.rfind(trimStr);
         if (pos != string::npos && pos + trimStr.length() == str.length())
         {
@@ -299,6 +307,11 @@ string CppString::TrimRight(string str, const vector<string> &trimStrs, int32_t 
 
         for (vector<string>::const_iterator it = trimStrs.begin(); it != trimStrs.end(); ++it)
         {
+            if (it->empty())
+            {
+                continue;
+            }
+
             pos = str.rfind(*it);
             if (pos != string::npos && pos + it->length() == str.length())
             {
@@ -322,7 +335,7 @@ string CppString::TrimRight(const string &str, int32_t times /*= 1*/)
     int32_t i = str.size() - 1;
     for (; i >= 0 && (times == -1 || static_cast<int32_t>(str.size() - 1 - i) < times); --i)
     {
-        if (iswprint(str[i]) && !iswspace(str[i]))
+        if (find(WHITESPACES.begin(),WHITESPACES.end(),str[i]) == WHITESPACES.end())
         {
             break;
         }

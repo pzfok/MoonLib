@@ -20,7 +20,7 @@ public:
      *
      * @param   int32_t numerator
      * @retval  
-     * @author  moontan
+     * @author  moon
      */
     CppFraction(int32_t num);
 
@@ -32,7 +32,7 @@ public:
      *
      * @param   const CppFraction<NumberType>& right
      * @retval  CppFraction
-     * @author  moontan
+     * @author  moon
      */
     CppFraction<NumberType>operator+(const CppFraction<NumberType>&right) const;
 
@@ -40,7 +40,7 @@ public:
      *
      * @param   const CppFraction<NumberType>& right
      * @retval  CppFraction
-     * @author  moontan
+     * @author  moon
      */
     CppFraction<NumberType>operator-(const CppFraction<NumberType>&right) const;
 
@@ -48,7 +48,7 @@ public:
      *
      * @param   const CppFraction<NumberType>& right
      * @retval  CppFraction
-     * @author  moontan
+     * @author  moon
      */
     CppFraction<NumberType>operator*(const CppFraction<NumberType>&right) const;
 
@@ -56,14 +56,14 @@ public:
      *
      * @param   const CppFraction<NumberType>& right
      * @retval  CppFraction
-     * @author  moontan
+     * @author  moon
      */
     CppFraction<NumberType>operator/(const CppFraction<NumberType>&right) const;
 
     /** 取负值
      *
      * @retval  CppFraction
-     * @author  moontan
+     * @author  moon
      */
     CppFraction<NumberType>Negative() const;
 
@@ -75,7 +75,7 @@ public:
     /** 转换为可读字符串[分子]/[分母]
      *
      * @retval  std::string
-     * @author  moontan
+     * @author  moon
      */
     std::string ToString() const;
 

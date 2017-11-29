@@ -58,7 +58,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  const CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     const CppBigNum operator-(const CppBigNum &right) const;
 
@@ -75,7 +75,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  const CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     const CppBigNum operator/(const CppBigNum &right) const;
 
@@ -92,7 +92,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  bool
-     * @author  moontan
+     * @author  moon
      */
     bool operator!=(const CppBigNum &right) const;
 
@@ -109,7 +109,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  bool
-     * @author  moontan
+     * @author  moon
      */
     bool operator<=(const CppBigNum &right) const;
 
@@ -117,7 +117,7 @@ public:
     // Describe:  赋值运算符重载
     // Parameter: const CppBigNum & right
     // Returns:   CppBigNum &
-    // Author:    moontan
+    // Author:    moon
     //************************************
     CppBigNum &operator=(const CppBigNum &right);
 
@@ -126,7 +126,7 @@ public:
     // Parameter: ostream & os
     // Parameter: const CppBigNum & right
     // Returns:   friend ostream&
-    // Author:    moontan
+    // Author:    moon
     //************************************
     friend ostream& operator<<(ostream &os, const CppBigNum &right)
     {
@@ -146,7 +146,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  bool
-     * @author  moontan
+     * @author  moon
      */
     bool operator>=(const CppBigNum &right) const;
 
@@ -180,7 +180,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     CppBigNum operator-=(const CppBigNum &right);
 
@@ -188,7 +188,7 @@ public:
     // Describe:  重载*=
     // Parameter: const CppBigNum &right
     // Returns:   CppBigNum
-    // Author:    moontan
+    // Author:    moon
     //************************************
     CppBigNum operator*=(const CppBigNum &right);
 
@@ -196,7 +196,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     CppBigNum operator/=(const CppBigNum &right);
 
@@ -204,7 +204,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     CppBigNum operator%=(const CppBigNum &right);
 
@@ -212,7 +212,7 @@ public:
      *
      * @param   const CppBigNum & right
      * @retval  CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     CppBigNum operator%(const CppBigNum &right);
 
@@ -228,28 +228,28 @@ public:
     // Describe:  将给定num转换为整数格式，即仅包含0-9，符号位只能出现在前面
     // Parameter: const string & num
     // Returns:   string
-    // Author:    moontan
+    // Author:    moon
     //************************************
     void GetNumFromStr(const string &num);
 
     /** 取负值
      *
      * @retval  CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     CppBigNum Negative() const;
 
     /** 求平方根，只能精确到整数级别，向下取整，非正数直接返回0
      *
      * @retval  CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     CppBigNum Sqrt() const;
 
     /** 求绝对值
      *
      * @retval  CppBigNum
-     * @author  moontan
+     * @author  moon
      */
     CppBigNum Abs() const;
 
@@ -261,7 +261,7 @@ protected:
      * @param   const string & numStr1
      * @param   const string & numStr2
      * @retval  bool
-     * @author  moontan
+     * @author  moon
      */
     static bool numStrLess(const string &numStr1, const string &numStr2);
 };
@@ -300,7 +300,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   const CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     const CppBigNumPro operator-(const CppBigNumPro &right) const;
 
@@ -317,7 +317,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   const CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     const CppBigNumPro operator/(const CppBigNumPro &right) const;
 
@@ -334,7 +334,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   bool
-    * @author   moontan
+    * @author   moon
     */
     bool operator!=(const CppBigNumPro &right) const;
 
@@ -351,7 +351,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   bool
-    * @author   moontan
+    * @author   moon
     */
     bool operator<=(const CppBigNumPro &right) const;
 
@@ -359,7 +359,7 @@ public:
     // Describe:  赋值运算符重载
     // Parameter: const CppBigNumPro & right
     // Returns:   CppBigNumPro &
-    // Author:    moontan
+    // Author:    moon
     //************************************
     CppBigNumPro &operator=(const CppBigNumPro &right);
 
@@ -368,7 +368,7 @@ public:
     // Parameter: ostream & os
     // Parameter: const CppBigNumPro & right
     // Returns:   friend ostream&
-    // Author:    moontan
+    // Author:    moon
     //************************************
     friend ostream& operator<<(ostream &os, const CppBigNumPro &right)
     {
@@ -388,7 +388,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   bool
-    * @author   moontan
+    * @author   moon
     */
     bool operator>=(const CppBigNumPro &right) const;
 
@@ -422,7 +422,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     CppBigNumPro operator-=(const CppBigNumPro &right);
 
@@ -430,7 +430,7 @@ public:
     // Describe:  重载*=
     // Parameter: const CppBigNumPro &right
     // Returns:   CppBigNumPro
-    // Author:    moontan
+    // Author:    moon
     //************************************
     CppBigNumPro operator*=(const CppBigNumPro &right);
 
@@ -438,7 +438,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     CppBigNumPro operator/=(const CppBigNumPro &right);
 
@@ -446,7 +446,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     CppBigNumPro operator%=(const CppBigNumPro &right);
 
@@ -454,7 +454,7 @@ public:
     *
     * @param    const CppBigNumPro & right
     * @retval   CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     CppBigNumPro operator%(const CppBigNumPro &right);
 
@@ -462,28 +462,28 @@ public:
     // Describe:  将给定num转换为整数格式，即仅包含0-9，符号位只能出现在前面
     // Parameter: const string & num
     // Returns:   string
-    // Author:    moontan
+    // Author:    moon
     //************************************
     void GetNumFromStr(const string &num);
 
     /** 取负值
     *
     * @retval   CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     CppBigNumPro Negative() const;
 
     /** 求平方根，只能精确到整数级别，向下取整，非正数直接返回0
     *
     * @retval   CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     CppBigNumPro Sqrt() const;
 
     /** 求绝对值
     *
     * @retval   CppBigNumPro
-    * @author   moontan
+    * @author   moon
     */
     CppBigNumPro Abs() const;
 
@@ -498,7 +498,7 @@ protected:
     * @param    const string & numVec1
     * @param    const string & numVec2
     * @retval   bool
-    * @author   moontan
+    * @author   moon
     */
     static bool numVecLess(const std::deque<uint32_t> &numVec1, const std::deque<uint32_t> &numVec2);
 };

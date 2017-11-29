@@ -66,10 +66,10 @@
 #define WARNN_CHECK_RETURN_I(cppLog, expr, ret) CHECK_RETURN_I((cppLog), expr, ret, CppLog::WARNN)
 #define WARNN_RET_RETURN_I(cppLog, ret) RET_RETURN_I((cppLog), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_RETURN_FI(cppLog, expr, ret, format, ...) CHECK_RETURN_FI((cppLog), expr, ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_RET_RETURN_FI(cppLog, ret, format, ...) RET_RETURN_FI((cppLog), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_RETURN_I(cppLog, expr, ret) CHECK_RETURN_I((cppLog), expr, ret, CppLog::WARNN)
-#define ERROR_RET_RETURN_I(cppLog, ret) RET_RETURN_I((cppLog), ret, CppLog::WARNN)
+#define ERROR_CHECK_RETURN_FI(cppLog, expr, ret, format, ...) CHECK_RETURN_FI((cppLog), expr, ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_RET_RETURN_FI(cppLog, ret, format, ...) RET_RETURN_FI((cppLog), ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_CHECK_RETURN_I(cppLog, expr, ret) CHECK_RETURN_I((cppLog), expr, ret, CppLog::ERROR)
+#define ERROR_RET_RETURN_I(cppLog, ret) RET_RETURN_I((cppLog), ret, CppLog::ERROR)
 
 // 检查，不符合条件则return void
 #define CHECK_RETURN_VOID_FI(cppLog, expr, logLevel, format, ...) CHECK_OP_FI((cppLog), expr, return, logLevel, format, ##__VA_ARGS__)
@@ -82,10 +82,10 @@
 #define WARNN_CHECK_RETURN_VOID_I(cppLog, expr) CHECK_RETURN_VOID_I((cppLog), expr, CppLog::WARNN)
 #define WARNN_RET_RETURN_VOID_I(cppLog, ret) RET_RETURN_VOID_I((cppLog), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_RETURN_VOID_FI(cppLog, expr, format, ...) CHECK_RETURN_VOID_FI((cppLog), expr, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_RET_RETURN_VOID_FI(cppLog, ret, format, ...) RET_RETURN_VOID_FI((cppLog), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_RETURN_VOID_I(cppLog, expr) CHECK_RETURN_VOID_I((cppLog), expr, CppLog::WARNN)
-#define ERROR_RET_RETURN_VOID_I(cppLog, ret) RET_RETURN_VOID_I((cppLog), ret, CppLog::WARNN)
+#define ERROR_CHECK_RETURN_VOID_FI(cppLog, expr, format, ...) CHECK_RETURN_VOID_FI((cppLog), expr, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_RET_RETURN_VOID_FI(cppLog, ret, format, ...) RET_RETURN_VOID_FI((cppLog), ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_CHECK_RETURN_VOID_I(cppLog, expr) CHECK_RETURN_VOID_I((cppLog), expr, CppLog::ERROR)
+#define ERROR_RET_RETURN_VOID_I(cppLog, ret) RET_RETURN_VOID_I((cppLog), ret, CppLog::ERROR)
 
 // 检查，不符合条件则break
 #define CHECK_BREAK_FI(cppLog, expr, logLevel, format, ...) CHECK_OP_FI((cppLog), expr, break, logLevel, format, ##__VA_ARGS__)
@@ -98,10 +98,10 @@
 #define WARNN_CHECK_BREAK_I(cppLog, expr) CHECK_BREAK_I((cppLog), expr, CppLog::WARNN)
 #define WARNN_RET_BREAK_I(cppLog, ret) RET_BREAK_I((cppLog), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_BREAK_FI(cppLog, expr, format, ...) CHECK_BREAK_FI((cppLog), expr, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_RET_BREAK_FI(cppLog, ret, format, ...) RET_BREAK_FI((cppLog), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_BREAK_I(cppLog, expr) CHECK_BREAK_I((cppLog), expr, CppLog::WARNN)
-#define ERROR_RET_BREAK_I(cppLog, ret) RET_BREAK_I((cppLog), ret, CppLog::WARNN)
+#define ERROR_CHECK_BREAK_FI(cppLog, expr, format, ...) CHECK_BREAK_FI((cppLog), expr, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_RET_BREAK_FI(cppLog, ret, format, ...) RET_BREAK_FI((cppLog), ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_CHECK_BREAK_I(cppLog, expr) CHECK_BREAK_I((cppLog), expr, CppLog::ERROR)
+#define ERROR_RET_BREAK_I(cppLog, ret) RET_BREAK_I((cppLog), ret, CppLog::ERROR)
 
 // 检查，不符合条件则contine
 #define CHECK_CONTINUE_FI(cppLog, expr, logLevel, format, ...) CHECK_OP_FI((cppLog), expr, continue, logLevel, format, ##__VA_ARGS__)
@@ -114,10 +114,10 @@
 #define WARNN_CHECK_CONTINUE_I(cppLog, expr) CHECK_CONTINUE_I((cppLog), expr, CppLog::WARNN)
 #define WARNN_RET_CONTINUE_I(cppLog, ret) RET_CONTINUE_I((cppLog), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_CONTINUE_FI(cppLog, expr, format, ...) CHECK_CONTINUE_FI((cppLog), expr, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_RET_CONTINUE_FI(cppLog, ret, format, ...) RET_CONTINUE_FI((cppLog), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_CONTINUE_I(cppLog, expr) CHECK_CONTINUE_I((cppLog), expr, CppLog::WARNN)
-#define ERROR_RET_CONTINUE_I(cppLog, ret) RET_CONTINUE_I((cppLog), ret, CppLog::WARNN)
+#define ERROR_CHECK_CONTINUE_FI(cppLog, expr, format, ...) CHECK_CONTINUE_FI((cppLog), expr, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_RET_CONTINUE_FI(cppLog, ret, format, ...) RET_CONTINUE_FI((cppLog), ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_CHECK_CONTINUE_I(cppLog, expr) CHECK_CONTINUE_I((cppLog), expr, CppLog::ERROR)
+#define ERROR_RET_CONTINUE_I(cppLog, ret) RET_CONTINUE_I((cppLog), ret, CppLog::ERROR)
 
 /* 使用CPP_LOG_INSTANCE的版本 */
 // 普通日志
@@ -138,10 +138,10 @@
 #define WARNN_CHECK_RETURN(expr, ret) CHECK_RETURN_I((CPP_LOG_INSTANCE), expr, ret, CppLog::WARNN)
 #define WARNN_RET_RETURN(ret) RET_RETURN_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_RETURN_F(expr, ret, format, ...) CHECK_RETURN_FI((CPP_LOG_INSTANCE), expr, ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_RET_RETURN_F(ret, format, ...) RET_RETURN_FI((CPP_LOG_INSTANCE), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_RETURN(expr, ret) CHECK_RETURN_I((CPP_LOG_INSTANCE), expr, ret, CppLog::WARNN)
-#define ERROR_RET_RETURN(ret) RET_RETURN_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
+#define ERROR_CHECK_RETURN_F(expr, ret, format, ...) CHECK_RETURN_FI((CPP_LOG_INSTANCE), expr, ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_RET_RETURN_F(ret, format, ...) RET_RETURN_FI((CPP_LOG_INSTANCE), ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_CHECK_RETURN(expr, ret) CHECK_RETURN_I((CPP_LOG_INSTANCE), expr, ret, CppLog::ERROR)
+#define ERROR_RET_RETURN(ret) RET_RETURN_I((CPP_LOG_INSTANCE), ret, CppLog::ERROR)
 
 // 检查，不符合条件则return void
 #define CHECK_RETURN_VOID_F(expr, logLevel, format, ...) CHECK_OP_FI((CPP_LOG_INSTANCE), expr, return, logLevel, format, ##__VA_ARGS__)
@@ -154,10 +154,10 @@
 #define WARNN_CHECK_RETURN_VOID(expr) CHECK_RETURN_VOID_I((CPP_LOG_INSTANCE), expr, CppLog::WARNN)
 #define WARNN_RET_RETURN_VOID(ret) RET_RETURN_VOID_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_RETURN_VOID_F(expr, format, ...) CHECK_RETURN_VOID_FI((CPP_LOG_INSTANCE), expr, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_RET_RETURN_VOID_F(ret, format, ...) RET_RETURN_VOID_FI((CPP_LOG_INSTANCE), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_RETURN_VOID(expr) CHECK_RETURN_VOID_I((CPP_LOG_INSTANCE), expr, CppLog::WARNN)
-#define ERROR_RET_RETURN_VOID(ret) RET_RETURN_VOID_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
+#define ERROR_CHECK_RETURN_VOID_F(expr, format, ...) CHECK_RETURN_VOID_FI((CPP_LOG_INSTANCE), expr, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_RET_RETURN_VOID_F(ret, format, ...) RET_RETURN_VOID_FI((CPP_LOG_INSTANCE), ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_CHECK_RETURN_VOID(expr) CHECK_RETURN_VOID_I((CPP_LOG_INSTANCE), expr, CppLog::ERROR)
+#define ERROR_RET_RETURN_VOID(ret) RET_RETURN_VOID_I((CPP_LOG_INSTANCE), ret, CppLog::ERROR)
 
 // 检查，不符合条件则break
 #define CHECK_BREAK_F(expr, logLevel, format, ...) CHECK_OP_FI((CPP_LOG_INSTANCE), expr, break, logLevel, format, ##__VA_ARGS__)
@@ -170,10 +170,10 @@
 #define WARNN_CHECK_BREAK(expr) CHECK_BREAK_I((CPP_LOG_INSTANCE), expr, CppLog::WARNN)
 #define WARNN_RET_BREAK(ret) RET_BREAK_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_BREAK_F(expr, format, ...) CHECK_BREAK_FI((CPP_LOG_INSTANCE), expr, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_RET_BREAK_F(ret, format, ...) RET_BREAK_FI((CPP_LOG_INSTANCE), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_BREAK(expr) CHECK_BREAK_I((CPP_LOG_INSTANCE), expr, CppLog::WARNN)
-#define ERROR_RET_BREAK(ret) RET_BREAK_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
+#define ERROR_CHECK_BREAK_F(expr, format, ...) CHECK_BREAK_FI((CPP_LOG_INSTANCE), expr, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_RET_BREAK_F(ret, format, ...) RET_BREAK_FI((CPP_LOG_INSTANCE), ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_CHECK_BREAK(expr) CHECK_BREAK_I((CPP_LOG_INSTANCE), expr, CppLog::ERROR)
+#define ERROR_RET_BREAK(ret) RET_BREAK_I((CPP_LOG_INSTANCE), ret, CppLog::ERROR)
 
 // 检查，不符合条件则contine
 #define CHECK_CONTINUE_F(expr, logLevel, format, ...) CHECK_OP_FI((CPP_LOG_INSTANCE), expr, continue, logLevel, format, ##__VA_ARGS__)
@@ -186,10 +186,10 @@
 #define WARNN_CHECK_CONTINUE(expr) CHECK_CONTINUE_I((CPP_LOG_INSTANCE), expr, CppLog::WARNN)
 #define WARNN_RET_CONTINUE(ret) RET_CONTINUE_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
 
-#define ERROR_CHECK_CONTINUE_F(expr, format, ...) CHECK_CONTINUE_FI((CPP_LOG_INSTANCE), expr, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_RET_CONTINUE_F(ret, format, ...) RET_CONTINUE_FI((CPP_LOG_INSTANCE), ret, CppLog::WARNN, format, ##__VA_ARGS__)
-#define ERROR_CHECK_CONTINUE(expr) CHECK_CONTINUE_I((CPP_LOG_INSTANCE), expr, CppLog::WARNN)
-#define ERROR_RET_CONTINUE(ret) RET_CONTINUE_I((CPP_LOG_INSTANCE), ret, CppLog::WARNN)
+#define ERROR_CHECK_CONTINUE_F(expr, format, ...) CHECK_CONTINUE_FI((CPP_LOG_INSTANCE), expr, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_RET_CONTINUE_F(ret, format, ...) RET_CONTINUE_FI((CPP_LOG_INSTANCE), ret, CppLog::ERROR, format, ##__VA_ARGS__)
+#define ERROR_CHECK_CONTINUE(expr) CHECK_CONTINUE_I((CPP_LOG_INSTANCE), expr, CppLog::ERROR)
+#define ERROR_RET_CONTINUE(ret) RET_CONTINUE_I((CPP_LOG_INSTANCE), ret, CppLog::ERROR)
 #endif
 
 #define THROW(format, ...) throw CppException(0, FILE_LOCATION + "|" + CppString::GetArgs((format), ##__VA_ARGS__))
@@ -256,7 +256,7 @@ public:
     /** 获得调用栈
      *
      * @retval  string
-     * @author  moontan
+     * @author  moon
      */
     static string GetStackTrace();
 };

@@ -24,7 +24,7 @@ public:
      * @param   uint32_t width                          图表宽度
      * @param   uint32_t height                         图表高度
      * @retval  void
-     * @author  moontan
+     * @author  moon
      */
     static void MakeSplineLine(const string &path,
                                const string &title,

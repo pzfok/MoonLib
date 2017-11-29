@@ -63,11 +63,11 @@ TEST(CppString, TrimTest)
     EXPECT_EQ("shizhu", CppString::TrimLeft("wowowowoshizhu", "wo", -1));
     EXPECT_EQ("wowowowoshizhu", CppString::TrimLeft("wowowowoshizhu", "wo", 0));
 
-    EXPECT_EQ("shiwozhuwo", CppString::TrimLeft("woshiwozhuwo", trimStrs));
+    EXPECT_EQ("shiwozhuwo", CppString::TrimLeft("woshiwozhuwo", trimStrs, 1));
     EXPECT_EQ("zhuwo", CppString::TrimLeft("woshiwozhuwo", trimStrs, -1));
     EXPECT_EQ("wozhuwo", CppString::TrimLeft("woshiwozhuwo", trimStrs, 2));
 
-    EXPECT_EQ("wowowowoshizhu", CppString::TrimLeft("  \t\r\n\b  wowowowoshizhu", -1));
+    EXPECT_EQ("wowowowoshizhu", CppString::TrimLeft("  \t\r\n  wowowowoshizhu", -1));
     EXPECT_EQ("  wowowowoshizhu", CppString::TrimLeft("  wowowowoshizhu", 0));
     EXPECT_EQ(" wowowowoshizhu", CppString::TrimLeft("  wowowowoshizhu", 1));
     EXPECT_EQ("wowowowoshizhu", CppString::TrimLeft("  wowowowoshizhu", 2));
@@ -83,11 +83,11 @@ TEST(CppString, TrimTest)
     EXPECT_EQ("wowowoshi", CppString::TrimRight("wowowoshizhuzhuzhuzhu", "zhu", -1));
     EXPECT_EQ("wowowoshizhuzhuzhuzhu", CppString::TrimRight("wowowoshizhuzhuzhuzhu", "zhu", 0));
 
-    EXPECT_EQ("woshiwozhuwoshi", CppString::TrimRight("woshiwozhuwoshiwo", trimStrs));
+    EXPECT_EQ("woshiwozhuwoshi", CppString::TrimRight("woshiwozhuwoshiwo", trimStrs, 1));
     EXPECT_EQ("woshiwozhu", CppString::TrimRight("woshiwozhuwoshiwo", trimStrs, -1));
     EXPECT_EQ("woshiwozhuwo", CppString::TrimRight("woshiwozhuwoshiwo", trimStrs, 2));
 
-    EXPECT_EQ("wowowowoshizhu", CppString::TrimRight("wowowowoshizhu  \t\r\n\b  ", -1));
+    EXPECT_EQ("wowowowoshizhu", CppString::TrimRight("wowowowoshizhu  \t\r\n  ", -1));
     EXPECT_EQ("wowowowoshizhu  ", CppString::TrimRight("wowowowoshizhu  ", 0));
     EXPECT_EQ("wowowowoshizhu ", CppString::TrimRight("wowowowoshizhu  ", 1));
     EXPECT_EQ("wowowowoshizhu", CppString::TrimRight("wowowowoshizhu  ", 2));
@@ -95,7 +95,7 @@ TEST(CppString, TrimTest)
 
 
     EXPECT_EQ("shizhu", CppString::Trim("woshizhuwo", "wo"));
-    EXPECT_EQ("wowo", CppString::Trim("wowowowo", "wo"));
+    EXPECT_EQ("wowo", CppString::Trim("wowowowo", "wo", 1));
     EXPECT_EQ("wowowowo", CppString::Trim("wowowowo", ""));
     EXPECT_EQ("", CppString::Trim("wowowowo", "wowowowo"));
     EXPECT_EQ("woshizhuwowo", CppString::Trim("wowowoshizhuwowowowo", "wo", 2));
@@ -103,15 +103,18 @@ TEST(CppString, TrimTest)
     EXPECT_EQ("shiwozhu", CppString::Trim("wowowoshiwozhuwowowowowowowowowo", "wo", -1));
     EXPECT_EQ("wowowoshiwozhuwowowowowowowowowo", CppString::Trim("wowowoshiwozhuwowowowowowowowowo", "wo", 0));
 
-    EXPECT_EQ("shiwozhuwoshi", CppString::Trim("woshiwozhuwoshiwo", trimStrs));
+    EXPECT_EQ("shiwozhuwoshi", CppString::Trim("woshiwozhuwoshiwo", trimStrs, 1));
     EXPECT_EQ("zhu", CppString::Trim("woshiwozhuwoshiwo", trimStrs, -1));
     EXPECT_EQ("wozhuwo", CppString::Trim("woshiwozhuwoshiwo", trimStrs, 2));
 
-    EXPECT_EQ("wowowowoshizhu", CppString::Trim("  \t\r\n\b  wowowowoshizhu  \t\r\n\b  ", -1));
+    EXPECT_EQ("wowowowoshizhu", CppString::Trim("  \t\r\n  wowowowoshizhu  \t\r\n  ", -1));
     EXPECT_EQ("  wowowowoshizhu  ", CppString::Trim("  wowowowoshizhu  ", 0));
     EXPECT_EQ(" wowowowoshizhu ", CppString::Trim("  wowowowoshizhu  ", 1));
     EXPECT_EQ("wowowowoshizhu", CppString::Trim("wowowowoshizhu  ", 2));
     EXPECT_EQ("wowowowoshizhu", CppString::Trim("  wowowowoshizhu  ", 3));
+
+    EXPECT_EQ("asd", CppString::Trim("\r\nasd  "));
+    EXPECT_EQ("中文测试", CppString::Trim("\r\n中文测试  \n\n"));
 }
 
 TEST(CppString, SplitStr)

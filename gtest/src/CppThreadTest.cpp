@@ -10,6 +10,7 @@
 
 #include <CppMath.h>
 #include <CppLog.h>
+#include <CppThread.h>
 
 #include "global.h"
 
@@ -305,4 +306,40 @@ TEST(CppThreadTest, DISABLED_LocklessBufferWithSharedPtr)
     }
 
     INFOR_LOG("sum的值为[%u],lockCount[%u].", sum, lockCount);
+}
+
+TEST(CppThreadTest, ThreadPool)
+{
+    ThreadPool thread_pool(10);
+    list<shared_ptr<ThreadContext> > tcs;
+
+    // 低于线程数的并发
+    for (uint32_t i = 0; i < 3; ++i)
+    {
+        tcs.emplace_back(thread_pool.Run(bind([](uint32_t sec) {
+            sleep(sec);
+            ERROR_LOG("%u", sec);
+        }, i)));
+    }
+
+    for (auto &tc : tcs)
+    {
+        tc->Wait();
+    }
+
+    tcs.clear();
+
+    // 高于线程数的并发，并且测试逆序Wait，这样最后的几个线程，会被前面的线程阻塞住，直到有空闲线程出来
+    for (uint32_t i = 0; i < 15; ++i)
+    {
+        tcs.emplace_back(thread_pool.Run(bind([](uint32_t sec) {
+            sleep(sec);
+            INFOR_LOG("%u", sec);
+        }, 15 - i)));
+    }
+
+    for (auto &tc : tcs)
+    {
+        tc->Wait();
+    }
 }

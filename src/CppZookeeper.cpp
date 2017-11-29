@@ -69,7 +69,7 @@ using namespace std;
 namespace zookeeper
 {
 
-// TODO(moontan)
+// TODO(moon)
 // 基础功能
 //  nowatch事件，如何区分是哪个？或者用另一种方式确定？
 //  内部暂时没做授权失败的Watcher通知处理
@@ -784,7 +784,7 @@ int32_t ZookeeperManager::Create(const string &path, const char *value, int valu
             }
         }
 
-        // TODO(moontan)：这里没有判断ACL，目前没需求，后面有的话，要加上判断
+        // TODO(moon)：这里没有判断ACL，目前没需求，后面有的话，要加上判断
     }
     else
     {
@@ -1064,14 +1064,14 @@ int32_t ZookeeperManager::Multi(MultiOps &multi_ops, vector<zoo_op_result_t> &re
     results.clear();
     results.resize(multi_ops.m_multi_ops.size());
 
-    // TODO(moontan)：官方API中如果操作数量为0怎么办？
+    // TODO(moon)：官方API中如果操作数量为0怎么办？
     if (multi_ops.m_multi_ops.empty())
     {
         WARN_LOG(0, 0, "批量操作数量为0.");
         return ZBADARGUMENTS;
     }
 
-    // TODO(moontan)：注意包量总大小限制1M
+    // TODO(moon)：注意包量总大小限制1M
     int32_t ret = zoo_multi(m_zhandle, multi_ops.m_multi_ops.size(), &multi_ops.m_multi_ops[0], &results[0]);
     if (ret != ZOK)
     {
@@ -1541,7 +1541,7 @@ void ZookeeperManager::InnerWatcher(zhandle_t *zh, int type, int state,
         }
         else
         {
-            // 重新注册，TODO(moontan)：看是否需要把children和stat传给watcher，避免watcher中调用，看使用量，这些参数可以统一封装在一个对象里
+            // 重新注册，TODO(moon)：看是否需要把children和stat传给watcher，避免watcher中调用，看使用量，这些参数可以统一封装在一个对象里
             ScopedStringVector children;
             ret = zoo_wget_children(manager.GetHandler(), abs_path, &ZookeeperManager::InnerWatcher,
                                     p_context, &children);
@@ -2016,7 +2016,7 @@ void ZookeeperManager::ReconnectResumeEnv()
             // Nothing
         }
 
-        // 注册错误，发个NOWATCH事件？TODO(moontan)，短信通知
+        // 注册错误，发个NOWATCH事件？TODO(moon)，短信通知
         if (ret != ZOK)
         {
             ERR_LOG(0, 0, "严重错误：Zookeeper:重新注册全局Watcher发生错误:ret[%d],zerror[%s].",
@@ -2028,7 +2028,7 @@ void ZookeeperManager::ReconnectResumeEnv()
             ScopedStringVector children;
             ret = GetChildren(it->first.c_str(), children, 1);
 
-            // 注册错误，发个NOWATCH事件？TODO(moontan)，短信通知
+            // 注册错误，发个NOWATCH事件？TODO(moon)，短信通知
             if (ret != ZOK)
             {
                 ERR_LOG(0, 0, "严重错误：Zookeeper:重新注册全局Watcher发生错误:ret[%d],zerror[%s].",
@@ -2070,7 +2070,7 @@ void ZookeeperManager::ReconnectResumeEnv()
             WARN_LOG(0, 0, "Zookeeper:无效的Watcher类型[%d].", it->second->m_watcher_type);
         }
 
-        // 注册错误，发个NOWATCH事件？TODO(moontan)，短信通知
+        // 注册错误，发个NOWATCH事件？TODO(moon)，短信通知
         if (ret != ZOK)
         {
             ERR_LOG(0, 0, "严重错误：Zookeeper:重新注册自定义Watcher发生错误:ret[%d],zerror[%s].",
@@ -2109,7 +2109,7 @@ void ZookeeperManager::ReconnectResumeEnv()
                 ret = CreatePathRecursion(parent_path);
                 if (ret != ZOK)
                 {
-                    // TODO(moontan)：短信通知
+                    // TODO(moon)：短信通知
                     ERR_LOG(0, 0, "严重错误：创建临时节点[%s]父节点[%s]失败,ret[%d],临时节点无法创建.",
                             it->first.c_str(), parent_path.c_str(), ret);
                     continue;
@@ -2126,7 +2126,7 @@ void ZookeeperManager::ReconnectResumeEnv()
             ret = Create(it->first.c_str(), it->second.Data.data(), NULL, &it->second.Acl, it->second.Flags);
             if (ret != ZOK)
             {
-                // TODO(moontan)：短信通知
+                // TODO(moon)：短信通知
                 ERR_LOG(0, 0, "严重错误：创建临时节点[%s]重试还失败,ret[%d]，临时节点无法创建.", it->first.c_str(), ret);
                 continue;
             }

@@ -81,7 +81,7 @@ public:
     /** 判断主机序是否是大端
      *
      * @retval  bool
-     * @author  moontan
+     * @author  moon
      */
     static bool IsBigendian()
     {
@@ -94,7 +94,7 @@ public:
      *
      * @param   uint64_t ipHost
      * @retval  uint64_t
-     * @author  moontan
+     * @author  moon
      */
     static inline uint64_t Htonll(uint64_t dataHost)
     {
@@ -114,7 +114,7 @@ public:
      *
      * @param   uint64_t dataNet
      * @retval  uint64_t
-     * @author  moontan
+     * @author  moon
      */
     static inline uint64_t Ntohll(uint64_t dataNet)
     {
@@ -258,7 +258,7 @@ protected:
      *
      * @param   int fd
      * @retval  void
-     * @author  moontan
+     * @author  moon
      */
     virtual void InitConnection(int fd)
     {
@@ -269,14 +269,14 @@ protected:
     *
     * @param    int fd
     * @retval   const string
-    * @author   moontan
+    * @author   moon
     */
     virtual const string GetSendData(uint32_t threadId, int fd) = 0;
 
     /** 创建一个客户端数据，不需要填充数值
     *
     * @retval   std::shared_ptr<PressCallClientDataBase>
-    * @author   moontan
+    * @author   moon
     */
     virtual shared_ptr<PressCallClientDataBase> MakeNewClientData() = 0;
 
@@ -286,7 +286,7 @@ protected:
      * @param   int fd
      * @param   const string & bufStr
      * @retval  bool                        成功返回true，失败返回false
-     * @author  moontan
+     * @author  moon
      */
     virtual bool CheckResponse(uint32_t threadId, int fd, const string &bufStr) = 0;
 
@@ -299,7 +299,7 @@ protected:
     /** 连接服务器，获得fd
     *
     * @retval  int32_t         成功则>=0，否则失败
-    * @author  moontan
+    * @author  moon
     */
     int32_t ConnectServer();
 
@@ -341,7 +341,7 @@ public:
      * @param   uint32_t eventSize
      * @param   uint32_t timeOutMs
      * @retval  int32_t                 返回触发的fd数量
-     * @author  moontan
+     * @author  moon
      */
     int32_t Wait(epoll_event events[], uint32_t eventSize, uint32_t timeOutMs);
 
@@ -358,7 +358,7 @@ public:
      *  mEvents仅会自动扩容，如果需要缩容，需要手工调用此函数
      *
      * @retval  void
-     * @author  moontan
+     * @author  moon
      */
     void ReleaseEventsMemory();
 

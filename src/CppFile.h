@@ -51,7 +51,7 @@ public:
      * @param   const string & srcFilePath
      * @param   const string & dstFilePath
      * @retval  void
-     * @author  moontan
+     * @author  moon
      */
     static void CopyFile(const string &srcFilePath, const string &dstFilePath)throw(CppException);
 
@@ -67,7 +67,7 @@ public:
      *
      * @param   const string & filePath
      * @retval  bool
-     * @author  moontan
+     * @author  moon
      */
     static bool IsFileExists(const string &filePath);
 };

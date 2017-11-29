@@ -55,7 +55,7 @@ public:
      *
      * @param   time_t timet
      * @retval  uint32_t
-     * @author  moontan
+     * @author  moon
      */
     static uint32_t GetCurrDay(time_t timet = time(NULL));
 
@@ -63,7 +63,7 @@ public:
      *
      * @param   time_t timet
      * @retval  uint32_t
-     * @author  moontan
+     * @author  moon
      */
     static uint32_t GetCurrMonth(time_t timet = time(NULL));
 
@@ -71,7 +71,7 @@ public:
      *
      * @param   time_t timet
      * @retval  uint32_t
-     * @author  moontan
+     * @author  moon
      */
     static uint32_t GetCurrYear(time_t timet = time(NULL));
 
@@ -79,7 +79,7 @@ public:
      *
      * @param   time_t timet
      * @retval  uint32_t
-     * @author  moontan
+     * @author  moon
      */
     static uint32_t GetCurrHour(time_t timet = time(NULL));
 
@@ -87,7 +87,7 @@ public:
      *
      * @param   time_t timet
      * @retval  uint32_t
-     * @author  moontan
+     * @author  moon
      */
     static uint32_t GetCurrMinute(time_t timet = time(NULL));
 
@@ -95,7 +95,7 @@ public:
      *
      * @param   time_t timet
      * @retval  uint32_t
-     * @author  moontan
+     * @author  moon
      */
     static uint32_t GetCurrSecond(time_t timet = time(NULL));
 
@@ -103,7 +103,7 @@ public:
     *
     * @param   time_t timet
     * @retval  uint32_t
-    * @author  moontan
+    * @author  moon
     */
     static uint32_t GetCurrDayOfWeek(time_t timet = time(NULL));
 
@@ -152,7 +152,7 @@ public:
     //************************************
     // Describe:  获得当前时间的uint64_t值
     // Returns:   uint64_t
-    // Author:    moontan
+    // Author:    moon
     //************************************
     static uint64_t GetUTime()
     {
@@ -224,14 +224,14 @@ public:
     // Describe:  记录时间
     // Parameter: const string & msg
     // Returns:   std::string           返回当前记录的条目信息
-    // Author:    moontan
+    // Author:    moon
     //************************************
     string Record(const string &msg = "");
 
     //************************************
     // Describe:  是否已经启动
     // Returns:   bool
-    // Author:    moontan
+    // Author:    moon
     //************************************
     bool IsStart() const
     {

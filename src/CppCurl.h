@@ -85,7 +85,7 @@ public:
      * @param   const string & proxy
      * @param   int32_t timeOut
      * @retval  string
-     * @author  moontan
+     * @author  moon
      */
     static string PostFileData(const string &url, const map<string, string> &formData,
                                const FormFile &formFile, const string &fileData,
@@ -104,7 +104,7 @@ public:
      * @param   const string & proxy
      * @param   int32_t timeOut
      * @retval  string
-     * @author  moontan
+     * @author  moon
      */
     static string PostFile(const string &url, const map<string, string> &formData,
                            const FormFile &formFile, const string &localPath,
@@ -136,7 +136,7 @@ public:
      *
      * @param   map<string, string> & params    比如params["a"]="1",params["b"]="2"
      * @retval  string                          返回a=1&b=2
-     * @author  moontan
+     * @author  moon
      */
     static string GetHttpParam(map<string, string> &params);
 };
