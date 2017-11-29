@@ -7,7 +7,7 @@ void ThreadContext::Wait()
     unique_lock<mutex> notify_lock(m_notify_mutex);
     m_notify_cv.wait(notify_lock, [&]
     {
-        return m_is_finish;          // 有数据时跳出
+        return m_is_finish;          // 结束时跳出
     });
 }
 
@@ -40,14 +40,22 @@ shared_ptr<ThreadContext> ThreadPool::Run(const function<void()> &fun, bool high
     return thread_context;
 }
 
-ThreadPool::~ThreadPool()
+void ThreadPool::Stop()
 {
-    Stop();
+    m_stop = true;
+    m_notify_cv.notify_all();
 
     for (auto &th : m_ths)
     {
         th.join();
     }
+
+    m_ths.clear();
+}
+
+ThreadPool::~ThreadPool()
+{
+    Stop();
 }
 
 void ThreadPool::RunTask()
@@ -77,7 +85,7 @@ void ThreadPool::RunTask()
                 break;
             }
 
-            auto fun_data = m_fun_list.front();
+            auto fun_data = move(m_fun_list.front());
             m_fun_list.pop_front();
 
             list_lock.unlock();

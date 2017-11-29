@@ -37,11 +37,7 @@ public:
 
     std::shared_ptr<ThreadContext> Run(const std::function<void()> &fun, bool high_priority = false);
 
-    void Stop()
-    {
-        m_stop = true;
-        m_notify_cv.notify_all();
-    }
+    void Stop();
 
     uint32_t ThreadCount()
     {
