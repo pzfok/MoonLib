@@ -308,10 +308,10 @@ TEST(CppThreadTest, DISABLED_LocklessBufferWithSharedPtr)
     INFOR_LOG("sum的值为[%u],lockCount[%u].", sum, lockCount);
 }
 
-TEST(CppThreadTest, ThreadPool)
+TEST(CppThreadTest, CppThreadPool)
 {
-    ThreadPool thread_pool(10);
-    list<shared_ptr<ThreadContext> > tcs;
+    CppThreadPool thread_pool(10);
+    list<shared_ptr<CppThreadContext> > tcs;
 
     // 低于线程数的并发
     for (uint32_t i = 0; i < 3; ++i)

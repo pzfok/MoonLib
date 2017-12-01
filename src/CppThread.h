@@ -7,7 +7,7 @@
 #include <thread>
 #include <condition_variable>
 
-class ThreadContext
+class CppThreadContext
 {
 public:
 
@@ -24,18 +24,27 @@ private:
 };
 
 // 线程池
-class ThreadPool
+class CppThreadPool
 {
 public:
-    ThreadPool(uint32_t thread_count)
+    CppThreadPool(uint32_t thread_count)
     {
         for (uint32_t i = 0; i < thread_count; ++i)
         {
-            m_ths.emplace_back(&ThreadPool::RunTask, this);
+            m_ths.emplace_back(&CppThreadPool::RunTask, this);
         }
     }
 
-    std::shared_ptr<ThreadContext> Run(const std::function<void()> &fun, bool high_priority = false);
+    std::shared_ptr<CppThreadContext> Run(const std::function<void()> &fun, bool high_priority = false);
+
+    // 在同一个context上执行另一个任务，Wait的时候，任意一个任务执行完毕将会获得通知
+    //
+    // @param   std::shared_ptr<CppThreadContext> context
+    // @param   const std::function<void()> & fun
+    // @param   bool high_priority
+    // @retval  void
+    // @author  moon
+    void RunOnContext(std::shared_ptr<CppThreadContext> context, const std::function<void()> &fun, bool high_priority = false);
 
     void Stop();
 
@@ -44,12 +53,12 @@ public:
         return m_ths.size();
     }
 
-    ~ThreadPool();
+    ~CppThreadPool();
 
 protected:
     void RunTask();
 
-    std::list<std::pair<std::shared_ptr<const std::function<void()>>, std::shared_ptr<ThreadContext>>> m_fun_list;    // 待执行任务列表
+    std::list<std::pair<std::shared_ptr<const std::function<void()>>, std::shared_ptr<CppThreadContext>>> m_fun_list;    // 待执行任务列表
     std::mutex m_fun_list_mutex;                 // 操作待执行任务列表的锁
     std::list<std::thread> m_ths;
     bool m_stop = false;

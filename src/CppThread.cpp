@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void ThreadContext::Wait()
+void CppThreadContext::Wait()
 {
     unique_lock<mutex> notify_lock(m_notify_mutex);
     m_notify_cv.wait(notify_lock, [&]
@@ -11,7 +11,7 @@ void ThreadContext::Wait()
     });
 }
 
-void ThreadContext::Finish(bool is_abort /*= false*/)
+void CppThreadContext::Finish(bool is_abort /*= false*/)
 {
     m_is_abort = is_abort;
     m_is_finish = true;
@@ -19,10 +19,10 @@ void ThreadContext::Finish(bool is_abort /*= false*/)
     m_notify_cv.notify_one();
 }
 
-shared_ptr<ThreadContext> ThreadPool::Run(const function<void()> &fun, bool high_priority /*= false*/)
+shared_ptr<CppThreadContext> CppThreadPool::Run(const function<void()> &fun, bool high_priority /*= false*/)
 {
     // 将任务加入队列
-    shared_ptr<ThreadContext> thread_context = make_shared<ThreadContext>();
+    shared_ptr<CppThreadContext> thread_context = make_shared<CppThreadContext>();
 
     unique_lock<mutex> list_lock(m_fun_list_mutex);
     if (high_priority)
@@ -40,7 +40,25 @@ shared_ptr<ThreadContext> ThreadPool::Run(const function<void()> &fun, bool high
     return thread_context;
 }
 
-void ThreadPool::Stop()
+void CppThreadPool::RunOnContext(std::shared_ptr<CppThreadContext> context, const std::function<void()> &fun, bool high_priority /*= false*/)
+{
+    // 将任务加入队列
+    unique_lock<mutex> list_lock(m_fun_list_mutex);
+    if (high_priority)
+    {
+        m_fun_list.emplace_front(make_shared<const function<void()>>(fun), context);
+    }
+    else
+    {
+        m_fun_list.emplace_back(make_shared<const function<void()>>(fun), context);
+    }
+    list_lock.unlock();
+
+    // 唤醒一个线程
+    m_notify_cv.notify_one();
+}
+
+void CppThreadPool::Stop()
 {
     m_stop = true;
     m_notify_cv.notify_all();
@@ -53,12 +71,12 @@ void ThreadPool::Stop()
     m_ths.clear();
 }
 
-ThreadPool::~ThreadPool()
+CppThreadPool::~CppThreadPool()
 {
     Stop();
 }
 
-void ThreadPool::RunTask()
+void CppThreadPool::RunTask()
 {
     while (!m_stop)
     {
@@ -89,6 +107,13 @@ void ThreadPool::RunTask()
             m_fun_list.pop_front();
 
             list_lock.unlock();
+
+            // 如果已经结束，则直接Finish，进行通知
+            if (fun_data.second->m_is_finish)
+            {
+                fun_data.second->Finish(fun_data.second->m_is_abort);
+                continue;
+            }
 
             bool abort = true;
             try
