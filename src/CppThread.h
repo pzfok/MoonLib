@@ -59,10 +59,9 @@ protected:
     void RunTask();
 
     std::list<std::pair<std::shared_ptr<const std::function<void()>>, std::shared_ptr<CppThreadContext>>> m_fun_list;    // 待执行任务列表
-    std::mutex m_fun_list_mutex;                 // 操作待执行任务列表的锁
     std::list<std::thread> m_ths;
     bool m_stop = false;
 
-    std::mutex m_notify_mutex;                   // 线程唤醒mutex
+    std::mutex m_fun_list_mutex;                 // 操作待执行任务列表的锁
     std::condition_variable m_notify_cv;         // 线程唤醒条件变量
 };
