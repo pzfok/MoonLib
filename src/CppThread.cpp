@@ -13,8 +13,10 @@ void CppThreadContext::Wait()
 
 void CppThreadContext::Finish(bool is_abort /*= false*/)
 {
+    unique_lock<mutex> notify_lock(m_notify_mutex);
     m_is_abort = is_abort;
     m_is_finish = true;
+    notify_lock.unlock();
 
     m_notify_cv.notify_one();
 }

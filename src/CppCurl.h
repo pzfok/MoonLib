@@ -33,8 +33,8 @@ public:
     // Author:    moon
     //************************************
     static string Get(const string &url, const string &cookiesFile = "",
-                      const vector<string> &otherHeaders = vector<string>(),
-                      const string &proxy = "", int32_t timeOut = 10, CURL *curl = NULL) throw(CppException);
+                      const vector<string> &otherHeaders = {}, const string &proxy = "", int32_t timeOut = 10,
+                      CURL *curl = NULL) throw(CppException);
 
     //************************************
     // Describe:  Get方式获取数据到本地文件
@@ -44,8 +44,8 @@ public:
     // Author:    moon
     //************************************
     static void Get(const string &url, const string &localPath, const string &cookiesFile = "",
-                    const vector<string> &otherHeaders = vector<string>(),
-                    const string &proxy = "", int32_t timeOut = 10, CURL *curl = NULL) throw(CppException);
+                    const vector<string> &otherHeaders = {}, const string &proxy = "", int32_t timeOut = 10,
+                    CURL *curl = NULL) throw(CppException);
 
     //************************************
     // Describe:  Post方式传输数据
@@ -57,8 +57,8 @@ public:
     // Author:    moon
     //************************************
     static string Post(const string &url, const string &data, const string &cookiesFile = "",
-                       const vector<string> &otherHeaders = vector<string>(),
-                       const string &proxy = "", int32_t timeOut = 10)throw(CppException);
+                       const vector<string> &otherHeaders = {}, const string &proxy = "",
+                       int32_t timeOut = 10)throw(CppException);
 
     //************************************
     // Describe:  Post表格数据
@@ -70,8 +70,7 @@ public:
     // Author:    moon
     //************************************
     static string PostForm(const string &url, const map<string, string> &formData,
-                           const string &cookiesFile = "",
-                           const vector<string> &otherHeaders = vector<string>(),
+                           const string &cookiesFile = "", const vector<string> &otherHeaders = {},
                            const string &proxy = "", int32_t timeOut = 10)throw(CppException);
 
     /** 发送文件,文件内存保存在string类型中
@@ -88,10 +87,9 @@ public:
      * @author  moon
      */
     static string PostFileData(const string &url, const map<string, string> &formData,
-                               const FormFile &formFile, const string &fileData,
-                               const string &cookiesFile = "",
-                               const vector<string> &otherHeaders = vector<string>(),
-                               const string &proxy = "", int32_t timeOut = 10)throw(CppException);
+                               const FormFile &formFile, const string &fileData, const string &cookiesFile = "",
+                               const vector<string> &otherHeaders = {}, const string &proxy = "",
+                               int32_t timeOut = 10)throw(CppException);
 
     /** 上传本地文件
      *
@@ -109,7 +107,7 @@ public:
     static string PostFile(const string &url, const map<string, string> &formData,
                            const FormFile &formFile, const string &localPath,
                            const string &cookiesFile = "",
-                           const vector<string> &otherHeaders = vector<string>(),
+                           const vector<string> &otherHeaders = {},
                            const string &proxy = "", int32_t timeOut = 10)throw(CppException);
 
     static void Init(long flags = CURL_GLOBAL_ALL)throw(CppException);
