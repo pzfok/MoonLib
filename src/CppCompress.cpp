@@ -57,7 +57,7 @@ bool CppCompress::GzipUncompress(const std::string& compressedData, std::string&
     return true;
 }
 
-bool CppCompress::GzipCompress(const std::string& data, std::string& compressedData, int level = -1)
+bool CppCompress::GzipCompress(const std::string& data, std::string& compressedData, int level)
 {
     unsigned char out[CHUNK];
     z_stream strm;
