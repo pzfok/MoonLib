@@ -123,9 +123,9 @@ public:
     /** HTML解码，把常用的使用替换方式解了，随便写的，不一定准
      *  http://114.xixik.com/character/
      *
-     * @param 	cosnt string & data
-     * @retval 	string
-     * @author 	moon
+     * @param   cosnt string & data
+     * @retval  string
+     * @author  moon
      */
     static string HtmlDecode(const string &data);
 

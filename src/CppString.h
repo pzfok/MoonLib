@@ -239,10 +239,10 @@ public:
 
     // 获得两个字符串的编辑距离
     //
-    // @param 	const string & str1
-    // @param 	const string & str2
-    // @retval 	uint32_t
-    // @author 	moon
+    // @param   const string & str1
+    // @param   const string & str2
+    // @retval  uint32_t
+    // @author  moon
     static uint32_t EditDistance(const string &str1, const string &str2);
 };
 
