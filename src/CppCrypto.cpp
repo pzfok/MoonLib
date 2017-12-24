@@ -64,6 +64,21 @@ string CppCrypto::HmacSHA256(const string &key, const string &data)
     return result;
 }
 
+string CppCrypto::HmacSHA384(const string &key, const string &data)
+{
+    // http://blog.csdn.net/yasi_xi/article/details/9066003
+
+    unsigned int resultLen = EVP_MAX_MD_SIZE;
+    string result(resultLen, 0);
+
+    (void)HMAC(EVP_sha384(), key.data(), key.size(),
+               reinterpret_cast<const unsigned char *>(data.data()), data.size(),
+               reinterpret_cast<unsigned char *>(&result[0]), &resultLen);
+
+    result.resize(resultLen);
+    return result;
+}
+
 string CppCrypto::Base64Encode(const string &data)
 {
     // http://blog.csdn.net/yasi_xi/article/details/9040793

@@ -228,7 +228,7 @@ string CppString::TrimLeft(string str, const string &trimStr, int32_t times /*= 
     return str;
 }
 
-static const vector<char> WHITESPACES{0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x20, 0};
+static const vector<char> WHITESPACES{ 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x20, 0 };
 
 string CppString::TrimLeft(string str, const vector<string> &trimStrs, int32_t times /*= 1*/)
 {
@@ -262,7 +262,7 @@ string CppString::TrimLeft(const string &str, int32_t times /*= 1*/)
     uint32_t i = 0;
     for (; i < str.size() && (times == -1 || static_cast<int32_t>(i) < times); ++i)
     {
-        if (find(WHITESPACES.begin(),WHITESPACES.end(),str[i]) == WHITESPACES.end())
+        if (find(WHITESPACES.begin(), WHITESPACES.end(), str[i]) == WHITESPACES.end())
         {
             break;
         }
@@ -335,7 +335,7 @@ string CppString::TrimRight(const string &str, int32_t times /*= 1*/)
     int32_t i = str.size() - 1;
     for (; i >= 0 && (times == -1 || static_cast<int32_t>(str.size() - 1 - i) < times); --i)
     {
-        if (find(WHITESPACES.begin(),WHITESPACES.end(),str[i]) == WHITESPACES.end())
+        if (find(WHITESPACES.begin(), WHITESPACES.end(), str[i]) == WHITESPACES.end())
         {
             break;
         }
@@ -425,8 +425,9 @@ char CppString::Hex2Char(uint8_t c, bool upCase)
 
 string CppString::Hex2Str(const string &str, bool upCase /*= false*/)
 {
-    string result;
     string::size_type len = str.length();
+    string result;
+    result.reserve(len << 1);
 
     for (string::size_type i = 0; i < len; ++i)
     {

@@ -164,6 +164,7 @@ string CppCurl::Get(const string &url, const string &cookiesFile,
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorMsg);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);  // HTTPS不指定证书
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);  // HTTPS不指定证书
+        //curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
 
         if (cookiesFile.length() != 0)
         {
@@ -264,6 +265,7 @@ void CppCurl::Get(const string &url, const string &localPath,
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorMsg);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);  // HTTPS不指定证书
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);  // HTTPS不指定证书
+        //curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
 
         if (cookiesFile.length() != 0)
         {
@@ -462,6 +464,7 @@ string CppCurl::PostForm(const string &url, const map<string, string> &formData,
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
+        //curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 20);
         curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 1);        // 禁止重用,提高性能
@@ -594,6 +597,7 @@ string CppCurl::PostFileData(const string &url, const map<string, string> &formD
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
+        //curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 20);
         curl_easy_setopt(curl, CURLOPT_READFUNCTION, readDataFromStream);
@@ -733,6 +737,7 @@ string CppCurl::PostFile(const string &url, const map<string, string> &formData,
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
+        //curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 20);
         curl_easy_setopt(curl, CURLOPT_READFUNCTION, readDataFromStream);
@@ -802,6 +807,102 @@ string CppCurl::PostFile(const string &url, const map<string, string> &formData,
     {
         curl_formfree(post);
         post = NULL;
+    }
+
+    return result.str();
+}
+
+string CppCurl::Delete(const string &url, const string &cookiesFile, const vector<string> &otherHeaders,
+                       const string &proxy, int32_t timeOut, CURL *curl)throw(CppException)
+{
+    Init();
+    stringstream result;
+    char errorMsg[CURL_ERROR_SIZE];
+    *errorMsg = '\0';
+
+    try
+    {
+        if (curl == NULL)
+        {
+            curl = curl_easy_init();
+        }
+
+        if (!curl)
+        {
+            THROW("curl_easy_init错误");
+        }
+
+        // 添加其他需要的头
+        curl_slist *http_headers = NULL;
+        for (vector<string>::const_iterator it = otherHeaders.begin(); it != otherHeaders.end(); ++it)
+        {
+            http_headers = curl_slist_append(http_headers, it->c_str());
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, http_headers);
+        }
+
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&result);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeData);
+
+        // 重定向跟随，设置最大限制为20次，避免循环阻塞
+        // 比如如果不设置最大限制的话，http://www.iaea.org/inis/collection/NCLCollectionStore/_Public/44/096/44096722.pdf会有重定向循环，导致libcurl阻塞
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 20);
+
+        curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+        curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 1);        // 禁止重用,提高性能
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);           // 禁止DNS域名解析超时发送信号
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorMsg);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);  // HTTPS不指定证书
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);  // HTTPS不指定证书
+        //curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
+
+        if (cookiesFile.length() != 0)
+        {
+            curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookiesFile.c_str());
+        }
+
+        if (!proxy.empty())
+        {
+            // socks5代理
+            if (proxy.find("socks5://") == 0)
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.substr(9).c_str());
+            }
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
+            }
+        }
+
+        if (timeOut > 0)
+        {
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeOut);
+        }
+
+        CURLcode res = curl_easy_perform(curl);
+        if (res)
+        {
+            THROW("curl_easy_perform错误,url[%s],%s(%d)", url.c_str(), errorMsg, res);
+        }
+    }
+    catch (...)
+    {
+        if (curl != NULL)
+        {
+            curl_easy_cleanup(curl);
+            curl = NULL;
+        }
+        throw;
+    }
+
+    if (curl != NULL)
+    {
+        curl_easy_cleanup(curl);
+        curl = NULL;
     }
 
     return result.str();

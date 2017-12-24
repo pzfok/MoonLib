@@ -85,12 +85,12 @@ void CppThreadPool::RunTask()
 {
     while (!m_stop)
     {
-        unique_lock<mutex> nority_lock(m_fun_list_mutex);
-        m_notify_cv.wait(nority_lock, [&]
+        unique_lock<mutex> notify_lock(m_fun_list_mutex);
+        m_notify_cv.wait(notify_lock, [&]
         {
             return !m_fun_list.empty() || m_stop;          // 有数据时跳出
         });
-        nority_lock.unlock();
+        notify_lock.unlock();
 
         if (m_stop)
         {

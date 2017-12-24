@@ -44,7 +44,7 @@ LDFLAGS += ${STATIC_LIBS}
 #LDFLAGS += -pg
 
 #编译选项
-CFLAGS += -rdynamic -g -MMD -O2 -Wall -Wextra -fPIC
+CFLAGS += -rdynamic -g -MMD -O3 -Wall -Wextra -fPIC
 CFLAGS += -std=gnu++11
 CFLAGS += -D__CPP_UTIL_LIB__
 #CFLAGS += -std=c++11

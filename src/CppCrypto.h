@@ -37,6 +37,15 @@ public:
      */
     static string HmacSHA256(const string &key, const string &data);
 
+    /** HmacSHA384加密
+    *
+    * @param   const string & key
+    * @param   const string & data
+    * @retval  string
+    * @author  moon
+    */
+    static string HmacSHA384(const string &key, const string &data);
+
     /** Base64编码
      *
      * @param   const string & data

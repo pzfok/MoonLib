@@ -110,6 +110,19 @@ public:
                            const vector<string> &otherHeaders = {},
                            const string &proxy = "", int32_t timeOut = 10)throw(CppException);
 
+    // 发送DELETE请求
+    //
+    // @param   const string & url
+    // @param   const string & cookiesFile
+    // @param   const vector<string> & otherHeaders
+    // @param   const string & proxy
+    // @param   int32_t timeOut
+    // @retval  string
+    // @author  moon
+    static string Delete(const string &url, const string &cookiesFile = "",
+                         const vector<string> &otherHeaders = {}, const string &proxy = "", int32_t timeOut = 10,
+                         CURL *curl = NULL)throw(CppException);
+
     static void Init(long flags = CURL_GLOBAL_ALL)throw(CppException);
 
     /** 将字符串编码成URL
